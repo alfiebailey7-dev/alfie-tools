@@ -1,0 +1,223 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:#0f1117;color:#e2e8f0}
+.wrap{padding:1.5rem;min-height:600px;background:#0f1117}
+h1{font-size:18px;font-weight:500;color:#f1f5f9;margin-bottom:4px}
+.subtitle{font-size:13px;color:#64748b;margin-bottom:1.5rem}
+.dashboard{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:1.5rem}
+.stat{background:#1a1f2e;border:0.5px solid #2d3748;border-radius:8px;padding:12px;text-align:center}
+.stat-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-num{font-size:22px;font-weight:500;color:#f1f5f9}
+.progress-wrap{background:#1a1f2e;border:0.5px solid #2d3748;border-radius:8px;padding:14px;margin-bottom:1.5rem}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-title{font-size:13px;color:#94a3b8}
+.progress-pct{font-size:20px;font-weight:500;color:#f1f5f9}
+.progress-bar-bg{background:#2d3748;border-radius:4px;height:8px;overflow:hidden}
+.progress-bar-fill{height:8px;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#10b981);transition:width .4s ease}
+.controls{display:flex;gap:10px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.filter-select{background:#1a1f2e;border:0.5px solid #2d3748;border-radius:6px;color:#e2e8f0;padding:7px 10px;font-size:13px;cursor:pointer}
+.filter-select:focus{outline:none;border-color:#3b82f6}
+.search-input{background:#1a1f2e;border:0.5px solid #2d3748;border-radius:6px;color:#e2e8f0;padding:7px 10px;font-size:13px;width:180px}
+.search-input::placeholder{color:#4a5568}
+.search-input:focus{outline:none;border-color:#3b82f6}
+.export-btn{margin-left:auto;background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:500}
+.export-btn:hover{background:#2563eb}
+.table-wrap{overflow-x:auto;border:0.5px solid #2d3748;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px}
+thead tr{background:#1a1f2e}
+th{padding:10px 10px;text-align:left;font-size:11px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid #2d3748;white-space:nowrap}
+tbody tr{border-bottom:0.5px solid #1e2536;transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#1a1f2e}
+td{padding:8px 10px;vertical-align:middle}
+.doc-name{font-size:12px;font-weight:500;color:#e2e8f0;white-space:nowrap}
+.cat-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap}
+.cat-Financial{background:#1e3a5f;color:#60a5fa}
+.cat-Business{background:#1a3a2a;color:#4ade80}
+.cat-Commercial{background:#3a2a1a;color:#fb923c}
+.cat-Legal{background:#3a1a3a;color:#c084fc}
+.cat-Team{background:#1a2a3a;color:#38bdf8}
+.cat-Market{background:#3a2a1a;color:#fbbf24}
+.status-select{background:#0f1117;border:0.5px solid #2d3748;border-radius:5px;padding:4px 6px;font-size:11px;cursor:pointer;font-weight:500;min-width:130px}
+.status-select:focus{outline:none}
+.s-not{color:#f87171;border-color:#7f1d1d}
+.s-in{color:#fb923c;border-color:#7c2d12}
+.s-complete{color:#4ade80;border-color:#14532d}
+.s-sent{color:#60a5fa;border-color:#1e3a5f}
+.edit-field{background:transparent;border:none;border-bottom:0.5px solid transparent;color:#94a3b8;font-size:12px;width:100%;padding:2px 0;transition:border-color .2s}
+.edit-field:hover{border-bottom-color:#2d3748}
+.edit-field:focus{outline:none;border-bottom-color:#3b82f6;color:#e2e8f0}
+.date-field{background:transparent;border:none;border-bottom:0.5px solid transparent;color:#64748b;font-size:11px;width:100%;padding:2px 0;cursor:pointer;transition:border-color .2s;color-scheme:dark}
+.date-field:hover{border-bottom-color:#2d3748}
+.date-field:focus{outline:none;border-bottom-color:#3b82f6}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Series A Data Room Tracker — document status dashboard for investor due diligence</h2>
+<h1><i class="ti ti-folder-open" aria-hidden="true" style="font-size:18px;vertical-align:-2px;margin-right:8px;color:#3b82f6"></i>Series A Data Room Tracker</h1>
+<p class="subtitle">£10m raise · due diligence document management</p>
+
+<div class="dashboard">
+  <div class="stat"><div class="stat-label">Total</div><div class="stat-num" id="s-total">0</div></div>
+  <div class="stat"><div class="stat-label">Not Started</div><div class="stat-num" style="color:#f87171" id="s-ns">0</div></div>
+  <div class="stat"><div class="stat-label">In Progress</div><div class="stat-num" style="color:#fb923c" id="s-ip">0</div></div>
+  <div class="stat"><div class="stat-label">Complete</div><div class="stat-num" style="color:#4ade80" id="s-c">0</div></div>
+  <div class="stat"><div class="stat-label">Sent</div><div class="stat-num" style="color:#60a5fa" id="s-s">0</div></div>
+  <div class="stat"><div class="stat-label">Completion</div><div class="stat-num" id="s-pct">0%</div></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-top"><span class="progress-title">Overall completion progress</span><span class="progress-pct" id="pct-label">0%</span></div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div class="controls">
+  <select class="filter-select" id="cat-filter" onchange="renderTable()">
+    <option value="">All categories</option>
+    <option>Financial</option><option>Business Overview</option><option>Commercial</option>
+    <option>Legal</option><option>Team</option><option>Market</option>
+  </select>
+  <select class="filter-select" id="status-filter" onchange="renderTable()">
+    <option value="">All statuses</option>
+    <option>Not Started</option><option>In Progress</option><option>Complete</option><option>Sent to Investor</option>
+  </select>
+  <input class="search-input" id="search" placeholder="Search documents..." oninput="renderTable()">
+  <button class="export-btn" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i>Export report</button>
+</div>
+
+<div class="table-wrap">
+<table id="main-table">
+<thead>
+<tr>
+  <th style="width:200px">Document</th>
+  <th style="width:120px">Category</th>
+  <th style="width:145px">Status</th>
+  <th style="width:100px">Owner</th>
+  <th style="width:110px">Date completed</th>
+  <th style="width:100px">Date sent</th>
+  <th style="width:130px">Requesting investor</th>
+  <th>Notes</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+const DOCS = [
+  {name:"Balance Sheet",cat:"Financial"},
+  {name:"P&L Statement",cat:"Financial"},
+  {name:"Cash Flow Statement",cat:"Financial"},
+  {name:"Monthly Management Accounts",cat:"Financial"},
+  {name:"Revenue Breakdown by Product",cat:"Financial"},
+  {name:"AUA Monthly Bridge",cat:"Financial"},
+  {name:"Unit Economics",cat:"Financial"},
+  {name:"Cap Table",cat:"Financial"},
+  {name:"Existing Investment Agreements",cat:"Financial"},
+  {name:"Investor Deck",cat:"Business Overview"},
+  {name:"Company Overview Memo",cat:"Business Overview"},
+  {name:"Product Roadmap",cat:"Business Overview"},
+  {name:"Private Markets Product Plan",cat:"Business Overview"},
+  {name:"Customer List",cat:"Commercial"},
+  {name:"Cohort Analysis",cat:"Commercial"},
+  {name:"Churn Data",cat:"Commercial"},
+  {name:"Customer Acquisition by Channel",cat:"Commercial"},
+  {name:"Customer Case Studies",cat:"Commercial"},
+  {name:"FCA Regulatory Permissions",cat:"Legal"},
+  {name:"Articles of Association",cat:"Legal"},
+  {name:"Director and Shareholder Agreements",cat:"Legal"},
+  {name:"Material Contracts",cat:"Legal"},
+  {name:"IP Ownership Confirmation",cat:"Legal"},
+  {name:"Management Team CVs",cat:"Team"},
+  {name:"Organisational Chart",cat:"Team"},
+  {name:"Key Person Risk Analysis",cat:"Team"},
+  {name:"Competitive Landscape",cat:"Market"},
+  {name:"TAM SAM SOM Analysis",cat:"Market"},
+  {name:"Regulatory Tailwind Documentation",cat:"Market"}
+];
+
+let data = DOCS.map((d,i)=>({...d,id:i,status:"Not Started",owner:"",dateComplete:"",dateSent:"",investor:"",notes:""}));
+
+function catKey(c){return c.replace(/\s+/g,'').replace('Overview','');}
+
+function statusClass(s){
+  if(s==="Not Started") return "s-not";
+  if(s==="In Progress") return "s-in";
+  if(s==="Complete") return "s-complete";
+  if(s==="Sent to Investor") return "s-sent";
+  return "";
+}
+
+function updateDashboard(){
+  const total=data.length;
+  const ns=data.filter(d=>d.status==="Not Started").length;
+  const ip=data.filter(d=>d.status==="In Progress").length;
+  const c=data.filter(d=>d.status==="Complete").length;
+  const s=data.filter(d=>d.status==="Sent to Investor").length;
+  const done=c+s;
+  const pct=Math.round(done/total*100);
+  document.getElementById("s-total").textContent=total;
+  document.getElementById("s-ns").textContent=ns;
+  document.getElementById("s-ip").textContent=ip;
+  document.getElementById("s-c").textContent=c;
+  document.getElementById("s-s").textContent=s;
+  document.getElementById("s-pct").textContent=pct+"%";
+  document.getElementById("pct-label").textContent=pct+"%";
+  document.getElementById("pbar").style.width=pct+"%";
+}
+
+function renderTable(){
+  const catF=document.getElementById("cat-filter").value;
+  const stF=document.getElementById("status-filter").value;
+  const q=document.getElementById("search").value.toLowerCase();
+  const filtered=data.filter(d=>{
+    if(catF && d.cat!==catF) return false;
+    if(stF && d.status!==stF) return false;
+    if(q && !d.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const tbody=document.getElementById("tbody");
+  tbody.innerHTML=filtered.map(d=>`
+<tr>
+  <td class="doc-name">${d.name}</td>
+  <td><span class="cat-badge cat-${catKey(d.cat)}">${d.cat}</span></td>
+  <td>
+    <select class="status-select ${statusClass(d.status)}" onchange="updateField(${d.id},'status',this.value);this.className='status-select '+statusClass(this.value)">
+      <option ${d.status==="Not Started"?"selected":""}>Not Started</option>
+      <option ${d.status==="In Progress"?"selected":""}>In Progress</option>
+      <option ${d.status==="Complete"?"selected":""}>Complete</option>
+      <option ${d.status==="Sent to Investor"?"selected":""}>Sent to Investor</option>
+    </select>
+  </td>
+  <td><input class="edit-field" value="${d.owner}" placeholder="—" oninput="updateField(${d.id},'owner',this.value)"></td>
+  <td><input type="date" class="date-field" value="${d.dateComplete}" onchange="updateField(${d.id},'dateComplete',this.value)"></td>
+  <td><input type="date" class="date-field" value="${d.dateSent}" onchange="updateField(${d.id},'dateSent',this.value)"></td>
+  <td><input class="edit-field" value="${d.investor}" placeholder="—" oninput="updateField(${d.id},'investor',this.value)"></td>
+  <td><input class="edit-field" value="${d.notes}" placeholder="Add note..." oninput="updateField(${d.id},'notes',this.value)" style="min-width:140px"></td>
+</tr>`).join("");
+  updateDashboard();
+}
+
+function updateField(id,field,val){
+  const row=data.find(d=>d.id===id);
+  if(row) row[field]=val;
+  updateDashboard();
+}
+
+function exportCSV(){
+  const headers=["Document","Category","Status","Owner","Date Completed","Date Sent","Requesting Investor","Notes"];
+  const rows=data.map(d=>[d.name,d.cat,d.status,d.owner,d.dateComplete,d.dateSent,d.investor,d.notes].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","));
+  const csv=[headers.join(","),...rows].join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="data_room_status_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+renderTable();
+</script>

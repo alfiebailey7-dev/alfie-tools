@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsurX — Sales Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #10131a;
+    --bg3: #161b24;
+    --bg4: #1e2530;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8a9ab5;
+    --text3: #556070;
+    --accent: #3b82f6;
+    --accent2: #1d4ed8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --cyan: #06b6d4;
+    --purple: #a855f7;
+
+    --s-prospecting: #334155;
+    --s-demo: #1e3a5f;
+    --s-proposal: #1e3a5f;
+    --s-negotiation: #2d2a0a;
+    --s-won: #0f2e1a;
+    --s-lost: #2e0f0f;
+
+    --c-prospecting: #64748b;
+    --c-demo: #3b82f6;
+    --c-proposal: #06b6d4;
+    --c-negotiation: #f59e0b;
+    --c-won: #22c55e;
+    --c-lost: #ef4444;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .logo-text {
+    font-size: 15px; font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .logo-sub {
+    font-size: 11px; color: var(--text3);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-left: 4px;
+  }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--bg4); border-color: rgba(255,255,255,0.2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  /* MAIN */
+  .main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .kpi-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-family: 'IBM Plex Mono', monospace; }
+  .kpi-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; color: var(--text); }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.red { color: var(--red); }
+  .kpi-value.amber { color: var(--amber); }
+  .kpi-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* FUNNEL */
+  .mid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .panel-title {
+    font-size: 12px; font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--text2);
+  }
+
+  .funnel-stage {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .funnel-label { width: 110px; font-size: 11px; color: var(--text2); flex-shrink: 0; }
+  .funnel-bar-wrap { flex: 1; height: 22px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+  .funnel-bar { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; font-size: 10px; font-family: 'IBM Plex Mono', monospace; color: rgba(255,255,255,0.7); transition: width 0.4s; }
+  .funnel-count { width: 24px; text-align: right; font-size: 11px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+
+  /* CHART */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* FILTERS */
+  .filters {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .filter-select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+  .filter-label { font-size: 11px; color: var(--text3); }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 28px;
+    background: var(--bg2);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--bg3);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg3); }
+  tbody tr.cold { background: rgba(239,68,68,0.05); }
+  tbody tr.cold:hover { background: rgba(239,68,68,0.1); }
+  tbody td {
+    padding: 9px 12px;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .stage-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  .stage-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+  .cold-badge {
+    display: inline-block;
+    background: rgba(239,68,68,0.15);
+    color: var(--red);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .inline-edit {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 2px 4px;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .inline-edit:hover { border-color: var(--border2); background: var(--bg4); }
+  .inline-edit:focus { border-color: var(--accent); background: var(--bg4); outline: none; }
+
+  .inline-select {
+    background: var(--bg4);
+    border: 1px solid transparent;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .inline-select:focus { border-color: var(--accent); outline: none; }
+
+  .action-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  /* REP PERFORMANCE */
+  .rep-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .rep-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .rep-name { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+  .rep-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .rep-key { font-size: 11px; color: var(--text3); }
+  .rep-val { font-size: 12px; font-weight: 500; font-family: 'IBM Plex Mono', monospace; }
+  .rep-stages { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+  .rep-stage-pill {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ADD DEAL MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label { font-size: 11px; color: var(--text2); font-family: 'IBM Plex Mono', monospace; }
+  .form-input, .form-select {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty-row td { text-align: center; color: var(--text3); padding: 40px; font-style: italic; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .mid-row { grid-template-columns: 1fr; }
+    .main { padding: 16px; }
+    .header { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">IX</div>
+    <div>
+      <span class="logo-text">InsurX</span>
+      <span class="logo-sub">/ Lloyd's Pipeline</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-primary btn-sm" onclick="openModal()">+ Add Deal</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- KPIs -->
+  <div class="section-title">Pipeline Overview</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- FUNNEL + CHART -->
+  <div class="mid-row">
+    <div class="panel">
+      <div class="panel-title">Stage Funnel</div>
+      <div id="funnelContainer"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">6-Month Weighted Revenue Forecast</div>
+      <div class="chart-wrap">
+        <canvas id="forecastChart" role="img" aria-label="Bar chart showing monthly weighted revenue forecast for the next 6 months"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEALS TABLE -->
+  <div class="section-title">Active Deals</div>
+  <div class="filters">
+    <span class="filter-label">Filter:</span>
+    <select class="filter-select" id="filterStage" onchange="renderTable()">
+      <option value="">All stages</option>
+      <option>Prospecting</option>
+      <option>Demo Completed</option>
+      <option>Proposal Sent</option>
+      <option>Negotiation</option>
+      <option>Closed Won</option>
+      <option>Closed Lost</option>
+    </select>
+    <select class="filter-select" id="filterRep" onchange="renderTable()">
+      <option value="">All reps</option>
+    </select>
+    <select class="filter-select" id="filterCold" onchange="renderTable()">
+      <option value="">Show all activity</option>
+      <option value="cold">Cold deals only (30+ days)</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table id="dealsTable">
+      <thead>
+        <tr>
+          <th>Deal Name</th>
+          <th>Broker / Insurer</th>
+          <th>Stage</th>
+          <th>GWP Value</th>
+          <th>Probability</th>
+          <th>Weighted</th>
+          <th>Close Date</th>
+          <th>Rep</th>
+          <th>Last Activity</th>
+          <th>Next Action</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="dealsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- REP PERFORMANCE -->
+  <div class="section-title">Sales Rep Performance</div>
+  <div class="rep-grid" id="repGrid"></div>
+
+</main>
+
+<!-- ADD DEAL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Deal</div>
+      <button class="action-btn" onclick="closeModal()" style="font-size:16px;">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Deal Name</label>
+        <input class="form-input" id="f_name" placeholder="e.g. Beazley Cyber Risk Platform" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Broker / Insurer</label>
+        <input class="form-input" id="f_broker" placeholder="e.g. Gallagher Re" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage</label>
+        <select class="form-select" id="f_stage">
+          <option>Prospecting</option>
+          <option>Demo Completed</option>
+          <option>Proposal Sent</option>
+          <option>Negotiation</option>
+          <option>Closed Won</option>
+          <option>Closed Lost</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estimated GWP ($)</label>
+        <input class="form-input" id="f_gwp" type="number" placeholder="500000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Probability (%)</label>
+        <input class="form-input" id="f_prob" type="number" min="0" max="100" placeholder="60" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expected Close Date</label>
+        <input class="form-input" id="f_close" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sales Rep</label>
+        <input class="form-input" id="f_rep" placeholder="e.g. Sarah Chen" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Activity Date</label>
+        <input class="form-input" id="f_activity" type="date" />
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Next Action Required</label>
+        <input class="form-input" id="f_action" placeholder="e.g. Send proposal to underwriting team" />
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addDeal()">Add Deal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES = ['Prospecting','Demo Completed','Proposal Sent','Negotiation','Closed Won','Closed Lost'];
+const STAGE_COLORS = {
+  'Prospecting': '#64748b',
+  'Demo Completed': '#3b82f6',
+  'Proposal Sent': '#06b6d4',
+  'Negotiation': '#f59e0b',
+  'Closed Won': '#22c55e',
+  'Closed Lost': '#ef4444'
+};
+const STAGE_BG = {
+  'Prospecting': 'rgba(100,116,139,0.15)',
+  'Demo Completed': 'rgba(59,130,246,0.15)',
+  'Proposal Sent': 'rgba(6,182,212,0.15)',
+  'Negotiation': 'rgba(245,158,11,0.15)',
+  'Closed Won': 'rgba(34,197,94,0.15)',
+  'Closed Lost': 'rgba(239,68,68,0.15)'
+};
+
+const today = new Date();
+function daysAgo(dateStr) {
+  const d = new Date(dateStr);
+  return Math.floor((today - d) / 86400000);
+}
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'K';
+  return '$' + n;
+}
+function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
+function isCold(deal) { return daysAgo(deal.lastActivity) >= 30 && deal.stage !== 'Closed Won' && deal.stage !== 'Closed Lost'; }
+
+let deals = [
+  {
+    id: 1, name: 'Gallagher Re — Lloyd\'s Syndicate Analytics', broker: 'Gallagher Re',
+    stage: 'Negotiation', gwp: 1800000, prob: 75, closeDate: '2025-07-15',
+    rep: 'Sarah Chen', lastActivity: (() => { const d = new Date(today); d.setDate(d.getDate()-8); return d.toISOString().split('T')[0]; })(),
+    nextAction: 'Finalise commercial terms with Gallagher procurement'
+  },
+  {
+    id: 2, name: 'Miller Insurance — Delegated Authority Suite', broker: 'Miller Insurance',
+    stage: 'Proposal Sent', gwp: 950000, prob: 55, closeDate: '2025-08-01',
+    rep: 'James Park', lastActivity: (() => { const d = new Date(today); d.setDate(d.getDate()-35); return d.toISOString().split('T')[0]; })(),
+    nextAction: 'Follow up on proposal — no response in 5 weeks'
+  },
+  {
+    id: 3, name: 'Atrium Underwriters — Bordereaux Automation', broker: 'Atrium Underwriters',
+    stage: 'Demo Completed', gwp: 620000, prob: 40, closeDate: '2025-09-10',
+    rep: 'Sarah Chen', lastActivity: (() => { const d = new Date(today); d.setDate(d.getDate()-12); return d.toISOString().split('T')[0]; })(),
+    nextAction: 'Send bespoke demo recording to CUO office'
+  },
+  {
+    id: 4, name: 'Beazley Specialty — Digital MGU Platform', broker: 'Beazley',
+    stage: 'Closed Won', gwp: 2400000, prob: 100, closeDate: (() => { const d = new Date(today); d.setDate(d.getDate()-5); return d.toISOString().split('T')[0]; })(),
+    rep: 'James Park', lastActivity: (() => { const d = new Date(today); d.setDate(d.getDate()-5); return d.toISOString().split('T')[0]; })(),
+    nextAction: 'Kick off onboarding with Beazley tech team'
+  },
+  {
+    id: 5, name: 'Hiscox London Market — Claims Triage Tool', broker: 'Hiscox',
+    stage: 'Prospecting', gwp: 480000, prob: 20, closeDate: '2025-10-30',
+    rep: 'Priya Nair', lastActivity: (() => { const d = new Date(today); d.setDate(d.getDate()-42); return d.toISOString().split('T')[0]; })(),
+    nextAction: 'Request intro meeting via Lloyd\'s Innovation team'
+  }
+];
+
+let nextId = 6;
+let forecastChart = null;
+
+function renderAll() {
+  renderKPIs();
+  renderFunnel();
+  renderTable();
+  renderForecast();
+  renderReps();
+  populateRepFilter();
+}
+
+function renderKPIs() {
+  const active = deals.filter(d => d.stage !== 'Closed Lost');
+  const totalPipeline = active.reduce((s,d) => s + d.gwp, 0);
+  const weighted = active.reduce((s,d) => s + d.gwp * d.prob / 100, 0);
+  const cold = deals.filter(isCold).length;
+
+  const m = today.getMonth(); const y = today.getFullYear();
+  const wonThisMonth = deals.filter(d => d.stage === 'Closed Won' && new Date(d.closeDate).getMonth() === m && new Date(d.closeDate).getFullYear() === y).reduce((s,d) => s+d.gwp,0);
+  const lostThisMonth = deals.filter(d => d.stage === 'Closed Lost' && new Date(d.closeDate).getMonth() === m && new Date(d.closeDate).getFullYear() === y).reduce((s,d) => s+d.gwp,0);
+  const activeCount = deals.filter(d => d.stage !== 'Closed Won' && d.stage !== 'Closed Lost').length;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Total Pipeline</div>
+      <div class="kpi-value">${fmt(totalPipeline)}</div>
+      <div class="kpi-sub">${activeCount} active deals</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Weighted Forecast</div>
+      <div class="kpi-value" style="color:var(--accent)">${fmt(weighted)}</div>
+      <div class="kpi-sub">prob-adjusted GWP</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Deals</div>
+      <div class="kpi-value">${deals.length}</div>
+      <div class="kpi-sub">across all stages</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cold Deals</div>
+      <div class="kpi-value ${cold > 0 ? 'red' : ''}">${cold}</div>
+      <div class="kpi-sub">no activity 30+ days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Won This Month</div>
+      <div class="kpi-value green">${fmt(wonThisMonth)}</div>
+      <div class="kpi-sub">GWP closed won</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Lost This Month</div>
+      <div class="kpi-value ${lostThisMonth > 0 ? 'red' : ''}">${fmt(lostThisMonth)}</div>
+      <div class="kpi-sub">GWP closed lost</div>
+    </div>
+  `;
+}
+
+function renderFunnel() {
+  const counts = {};
+  STAGES.forEach(s => counts[s] = 0);
+  deals.forEach(d => counts[d.stage]++);
+  const max = Math.max(...Object.values(counts), 1);
+
+  document.getElementById('funnelContainer').innerHTML = STAGES.map(stage => `
+    <div class="funnel-stage">
+      <div class="funnel-label">${stage}</div>
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${Math.max(8, (counts[stage]/max)*100)}%; background:${STAGE_COLORS[stage]};">
+          ${counts[stage] > 0 ? counts[stage] + ' deal' + (counts[stage] !== 1 ? 's' : '') : ''}
+        </div>
+      </div>
+      <div class="funnel-count">${counts[stage]}</div>
+    </div>
+  `).join('');
+}
+
+function renderTable() {
+  const stageFilter = document.getElementById('filterStage').value;
+  const repFilter = document.getElementById('filterRep').value;
+  const coldFilter = document.getElementById('filterCold').value;
+
+  let filtered = deals.filter(d => {
+    if (stageFilter && d.stage !== stageFilter) return false;
+    if (repFilter && d.rep !== repFilter) return false;
+    if (coldFilter === 'cold' && !isCold(d)) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('dealsBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="11">No deals match the current filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(d => {
+    const cold = isCold(d);
+    const color = STAGE_COLORS[d.stage];
+    const bg = STAGE_BG[d.stage];
+    const weighted = Math.round(d.gwp * d.prob / 100);
+    return `
+      <tr class="${cold ? 'cold' : ''}" data-id="${d.id}">
+        <td><input class="inline-edit" value="${d.name}" onchange="updateField(${d.id},'name',this.value)" /></td>
+        <td><input class="inline-edit" value="${d.broker}" onchange="updateField(${d.id},'broker',this.value)" style="width:110px"/></td>
+        <td>
+          <select class="inline-select" onchange="updateField(${d.id},'stage',this.value)">
+            ${STAGES.map(s => `<option ${s===d.stage?'selected':''}>${s}</option>`).join('')}
+          </select>
+          <span class="stage-badge" style="background:${bg};color:${color};margin-left:4px;">
+            <span class="stage-dot" style="background:${color}"></span>
+          </span>
+        </td>
+        <td><input class="inline-edit" value="${d.gwp}" type="number" onchange="updateField(${d.id},'gwp',+this.value)" style="width:90px;font-family:'IBM Plex Mono',monospace" /></td>
+        <td><input class="inline-edit" value="${d.prob}" type="number" min="0" max="100" onchange="updateField(${d.id},'prob',+this.value)" style="width:52px;font-family:'IBM Plex Mono',monospace" />%</td>
+        <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">${fmtFull(weighted)}</td>
+        <td><input class="inline-edit" type="date" value="${d.closeDate}" onchange="updateField(${d.id},'closeDate',this.value)" style="width:120px" /></td>
+        <td><input class="inline-edit" value="${d.rep}" onchange="updateField(${d.id},'rep',this.value)" style="width:100px"/></td>
+        <td>
+          <input class="inline-edit" type="date" value="${d.lastActivity}" onchange="updateField(${d.id},'lastActivity',this.value)" style="width:120px" />
+          ${cold ? '<span class="cold-badge">COLD</span>' : ''}
+        </td>
+        <td><input class="inline-edit" value="${d.nextAction}" onchange="updateField(${d.id},'nextAction',this.value)" style="width:200px"/></td>
+        <td><button class="action-btn" onclick="deleteDeal(${d.id})" title="Delete">✕</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderForecast() {
+  const months = [];
+  const labels = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth() });
+    labels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
+  }
+
+  const data = months.map(({ year, month }) => {
+    return deals
+      .filter(d => d.stage !== 'Closed Lost')
+      .filter(d => {
+        const cd = new Date(d.closeDate);
+        return cd.getFullYear() === year && cd.getMonth() === month;
+      })
+      .reduce((s, d) => s + d.gwp * d.prob / 100, 0);
+  });
+
+  if (forecastChart) forecastChart.destroy();
+  const ctx = document.getElementById('forecastChart').getContext('2d');
+  forecastChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Weighted GWP',
+        data: data.map(v => Math.round(v)),
+        backgroundColor: data.map(v => v > 0 ? '#3b82f6' : '#1e2530'),
+        borderColor: 'transparent',
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#161b24',
+          borderColor: 'rgba(255,255,255,0.12)',
+          borderWidth: 1,
+          titleColor: '#8a9ab5',
+          bodyColor: '#e8eaf0',
+          callbacks: {
+            label: ctx => ' ' + fmtFull(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#556070', font: { family: 'IBM Plex Mono', size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            color: '#556070',
+            font: { family: 'IBM Plex Mono', size: 11 },
+            callback: v => fmt(v)
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderReps() {
+  const reps = {};
+  deals.forEach(d => {
+    if (!reps[d.rep]) reps[d.rep] = { pipeline: 0, weighted: 0, stages: {}, wonMonth: 0 };
+    const r = reps[d.rep];
+    if (d.stage !== 'Closed Lost') r.pipeline += d.gwp;
+    r.weighted += d.gwp * d.prob / 100;
+    r.stages[d.stage] = (r.stages[d.stage] || 0) + 1;
+    const m = today.getMonth(); const y = today.getFullYear();
+    if (d.stage === 'Closed Won' && new Date(d.closeDate).getMonth() === m && new Date(d.closeDate).getFullYear() === y) {
+      r.wonMonth += d.gwp;
+    }
+  });
+
+  document.getElementById('repGrid').innerHTML = Object.entries(reps).map(([name, r]) => `
+    <div class="rep-card">
+      <div class="rep-name">${name}</div>
+      <div class="rep-row">
+        <span class="rep-key">Pipeline</span>
+        <span class="rep-val">${fmt(r.pipeline)}</span>
+      </div>
+      <div class="rep-row">
+        <span class="rep-key">Weighted</span>
+        <span class="rep-val" style="color:var(--accent)">${fmt(r.weighted)}</span>
+      </div>
+      <div class="rep-row">
+        <span class="rep-key">Won (month)</span>
+        <span class="rep-val" style="color:var(--green)">${fmt(r.wonMonth)}</span>
+      </div>
+      <div class="rep-stages">
+        ${Object.entries(r.stages).map(([stage, count]) => `
+          <span class="rep-stage-pill" style="background:${STAGE_BG[stage]};color:${STAGE_COLORS[stage]}">
+            ${count} ${stage.split(' ')[0]}
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateRepFilter() {
+  const sel = document.getElementById('filterRep');
+  const current = sel.value;
+  const reps = [...new Set(deals.map(d => d.rep))].sort();
+  sel.innerHTML = '<option value="">All reps</option>' + reps.map(r => `<option ${r===current?'selected':''}>${r}</option>`).join('');
+}
+
+function updateField(id, field, value) {
+  const deal = deals.find(d => d.id === id);
+  if (deal) { deal[field] = value; renderAll(); }
+}
+
+function deleteDeal(id) {
+  deals = deals.filter(d => d.id !== id);
+  renderAll();
+}
+
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function addDeal() {
+  const name = document.getElementById('f_name').value.trim();
+  const broker = document.getElementById('f_broker').value.trim();
+  const stage = document.getElementById('f_stage').value;
+  const gwp = parseFloat(document.getElementById('f_gwp').value) || 0;
+  const prob = parseFloat(document.getElementById('f_prob').value) || 0;
+  const closeDate = document.getElementById('f_close').value || today.toISOString().split('T')[0];
+  const rep = document.getElementById('f_rep').value.trim();
+  const lastActivity = document.getElementById('f_activity').value || today.toISOString().split('T')[0];
+  const nextAction = document.getElementById('f_action').value.trim();
+
+  if (!name || !broker || !rep) { alert('Please fill in Deal Name, Broker/Insurer, and Rep.'); return; }
+
+  deals.push({ id: nextId++, name, broker, stage, gwp, prob, closeDate, rep, lastActivity, nextAction });
+  closeModal();
+  ['f_name','f_broker','f_gwp','f_prob','f_close','f_rep','f_activity','f_action'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+  });
+  renderAll();
+}
+
+function exportCSV() {
+  const headers = ['Deal Name','Broker/Insurer','Stage','GWP Value','Probability','Weighted Value','Close Date','Rep','Last Activity','Next Action'];
+  const rows = deals.map(d => [
+    d.name, d.broker, d.stage, d.gwp, d.prob + '%',
+    Math.round(d.gwp * d.prob / 100), d.closeDate, d.rep, d.lastActivity, d.nextAction
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'insurx_pipeline.csv'; a.click();
+}
+
+renderAll();
+</script>
+</body>
+</html>

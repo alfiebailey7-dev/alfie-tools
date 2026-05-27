@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prosper — Board Pack Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0a0c0f;
+    --bg-surface: #111318;
+    --bg-card: #161a22;
+    --bg-input: #1c2130;
+    --border: #252c3a;
+    --border-light: #2e3852;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8a93a8;
+    --text-muted: #4e5872;
+    --accent: #4f8ef7;
+    --accent-dim: #1e3460;
+    --green: #22c55e;
+    --green-bg: #0d2118;
+    --amber: #f59e0b;
+    --amber-bg: #271d08;
+    --red: #ef4444;
+    --red-bg: #250d0d;
+    --gold: #d4a853;
+    --section-gap: 2.5rem;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .app-header {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: #fff;
+    font-style: italic;
+  }
+  .app-name {
+    font-size: 1.1rem; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--text-primary);
+  }
+  .app-name span { color: var(--text-muted); font-weight: 400; }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 65px);
+  }
+
+  /* ─── SIDEBAR FORM ─── */
+  .sidebar {
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem 4rem;
+    overflow-y: auto;
+    height: calc(100vh - 65px);
+    position: sticky;
+    top: 65px;
+  }
+
+  .form-section {
+    margin-bottom: var(--section-gap);
+  }
+  .form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-number {
+    width: 22px; height: 22px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .form-section-header h3 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    margin-top: 0.9rem;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, input[type="number"]:focus,
+  textarea:focus, select:focus {
+    border-color: var(--accent);
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-muted); }
+  textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+  select { cursor: pointer; }
+  select option { background: #1c2130; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .risk-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .risk-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  /* ─── GENERATE BUTTON ─── */
+  .generate-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .generate-btn:hover { opacity: 0.88; }
+  .generate-btn:active { transform: scale(0.98); }
+
+  /* ─── OUTPUT PANE ─── */
+  .output-pane {
+    background: var(--bg-base);
+    padding: 2.5rem 2rem;
+    overflow-y: auto;
+  }
+
+  .output-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    opacity: 0.35;
+    text-align: center;
+  }
+  .output-placeholder svg { margin-bottom: 1.5rem; opacity: 0.5; }
+  .output-placeholder p { font-size: 0.9rem; color: var(--text-secondary); }
+
+  /* ─── BOARD PACK OUTPUT ─── */
+  #board-pack {
+    display: none;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .pack-print-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0.85rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .pack-print-bar span {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .print-btn {
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .print-btn:hover { background: var(--accent-dim); }
+
+  /* Pack cover */
+  .pack-cover {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .pack-cover::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .pack-cover-logo {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 2.2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .pack-cover-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+  }
+  .pack-cover-meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .pack-cover-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+  .pack-cover-toc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 2rem;
+  }
+  .toc-item {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .toc-item::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Pack sections */
+  .pack-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .pack-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pack-section-num {
+    width: 28px; height: 28px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .pack-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text-primary);
+  }
+
+  /* Metric cards */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .metric-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    position: relative;
+  }
+  .metric-card.green { border-color: #22c55e44; }
+  .metric-card.amber { border-color: #f59e0b44; }
+  .metric-card.red   { border-color: #ef444444; }
+  .metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .metric-badge {
+    position: absolute;
+    top: 0.7rem; right: 0.7rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .metric-badge.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .metric-badge.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .metric-badge.red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+  /* Traffic light pill */
+  .tl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .tl-pill.green { background: var(--green-bg); color: var(--green); }
+  .tl-pill.amber { background: var(--amber-bg); color: var(--amber); }
+  .tl-pill.red   { background: var(--red-bg);   color: var(--red); }
+  .tl-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .tl-pill.green .tl-dot { background: var(--green); }
+  .tl-pill.amber .tl-dot { background: var(--amber); }
+  .tl-pill.red   .tl-dot { background: var(--red); }
+
+  /* KV rows */
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+  }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-key {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex-shrink: 0;
+    max-width: 45%;
+  }
+  .kv-val {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Narrative text */
+  .pack-text {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .pack-text:last-child { margin-bottom: 0; }
+
+  .pack-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+    margin-top: 1.1rem;
+  }
+  .pack-label:first-child { margin-top: 0; }
+
+  /* Risk table */
+  .risk-table { width: 100%; border-collapse: collapse; }
+  .risk-table th {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Agenda items */
+  .agenda-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .agenda-item:last-child { border-bottom: none; }
+  .agenda-num {
+    width: 26px; height: 26px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Decision items */
+  .decision-item {
+    background: rgba(79,142,247,0.05);
+    border: 1px solid var(--accent-dim);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+  .decision-item:last-child { margin-bottom: 0; }
+  .decision-prefix {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  /* Personnel tags */
+  .person-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.76rem;
+    color: var(--text-primary);
+    margin: 0.2rem 0.2rem 0.2rem 0;
+  }
+  .person-tag .role {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+  /* Print */
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    .app-header, .sidebar, .pack-print-bar { display: none !important; }
+    .layout { display: block !important; }
+    .output-pane { padding: 0 !important; }
+    #board-pack { display: block !important; }
+    .pack-section { page-break-inside: avoid; background: #fff !important;
+      border: 1px solid #ccc !important; color: #000 !important; }
+    .pack-cover { background: #f8f8f8 !important; }
+    :root {
+      --text-primary: #111; --text-secondary: #444; --text-muted: #777;
+      --bg-card: #fff; --bg-surface: #f8f8f8; --bg-input: #f0f0f0;
+      --border: #ddd; --border-light: #ccc; --accent: #1a56db;
+      --green: #16a34a; --amber: #d97706; --red: #dc2626;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-mark">P</div>
+  <div>
+    <div class="app-name">Prosper <span>/ Board Pack Generator</span></div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ════════════════ SIDEBAR FORM ════════════════ -->
+  <aside class="sidebar">
+    <form id="bp-form">
+
+      <!-- 1. Executive Summary -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">1</div>
+          <h3>Executive Summary</h3>
+        </div>
+        <label>Key Wins This Month</label>
+        <textarea id="es-wins" rows="3" placeholder="e.g. Closed £2M seed round, launched ISA product..."></textarea>
+        <label>Key Challenges</label>
+        <textarea id="es-challenges" rows="3" placeholder="e.g. Onboarding delays, regulatory query from FCA..."></textarea>
+        <label>Decisions Needed Today</label>
+        <textarea id="es-decisions" rows="2" placeholder="e.g. Approve Q3 hiring plan, sign-off on new partnership..."></textarea>
+      </div>
+
+      <!-- 2. Financial Performance -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">2</div>
+          <h3>Financial Performance</h3>
+        </div>
+        <label>P&L vs Budget Variance (%)</label>
+        <input type="number" id="fin-variance" placeholder="e.g. -8" step="0.1">
+        <label>AUA This Month (£)</label>
+        <input type="text" id="fin-aua-now" placeholder="e.g. £142M">
+        <label>AUA Last Month (£)</label>
+        <input type="text" id="fin-aua-prev" placeholder="e.g. £135M">
+        <label>Revenue Run Rate (£ annualised)</label>
+        <input type="text" id="fin-rev" placeholder="e.g. £1.8M">
+        <label>Burn Rate (£/month)</label>
+        <input type="text" id="fin-burn" placeholder="e.g. £320k">
+        <label>Cash Runway (months)</label>
+        <input type="number" id="fin-runway" placeholder="e.g. 18">
+        <div class="field-row">
+          <div>
+            <label>Debtor Days</label>
+            <input type="number" id="fin-debtor" placeholder="e.g. 32">
+          </div>
+          <div>
+            <label>Creditor Days</label>
+            <input type="number" id="fin-creditor" placeholder="e.g. 45">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Commercial Performance -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">3</div>
+          <h3>Commercial Performance</h3>
+        </div>
+        <div class="field-row">
+          <div>
+            <label>New Customers</label>
+            <input type="number" id="com-new" placeholder="e.g. 124">
+          </div>
+          <div>
+            <label>Churned Customers</label>
+            <input type="number" id="com-churned" placeholder="e.g. 8">
+          </div>
+        </div>
+        <label>Total Customers</label>
+        <input type="number" id="com-total" placeholder="e.g. 2,840">
+        <label>Revenue Split — Savings (%)</label>
+        <input type="number" id="com-savings-pct" placeholder="e.g. 35" min="0" max="100">
+        <label>Revenue Split — Investments (%)</label>
+        <input type="number" id="com-inv-pct" placeholder="e.g. 65" min="0" max="100">
+        <label>Private Markets Product Status</label>
+        <select id="com-pm-status">
+          <option value="">Select status...</option>
+          <option>In development</option>
+          <option>Beta testing</option>
+          <option>Soft launch</option>
+          <option>Live</option>
+          <option>On hold</option>
+        </select>
+        <label>Private Markets Notes</label>
+        <textarea id="com-pm-notes" rows="2" placeholder="Any colour on the private markets product..."></textarea>
+      </div>
+
+      <!-- 4. People -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">4</div>
+          <h3>People</h3>
+        </div>
+        <label>New Hires (Name — Role, one per line)</label>
+        <textarea id="ppl-hires" rows="3" placeholder="Sarah Chen — Head of Compliance&#10;James Obi — Senior Engineer"></textarea>
+        <label>Departures (Name — Role, one per line)</label>
+        <textarea id="ppl-departures" rows="2" placeholder="Tom Ridge — Product Manager"></textarea>
+        <label>Open Roles</label>
+        <textarea id="ppl-open" rows="2" placeholder="e.g. CTO, 2x Backend Engineers, Marketing Lead"></textarea>
+        <label>Total Headcount</label>
+        <input type="number" id="ppl-headcount" placeholder="e.g. 47">
+      </div>
+
+      <!-- 5. Risk Register -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">5</div>
+          <h3>Risk Register</h3>
+        </div>
+        <div id="risks-container">
+          <!-- Risks rendered by JS -->
+        </div>
+      </div>
+
+      <!-- 6. Market & Competitive -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">6</div>
+          <h3>Market &amp; Competitive</h3>
+        </div>
+        <label>Key Competitor Move This Month</label>
+        <textarea id="mkt-competitor" rows="2" placeholder="e.g. Moneybox launched a SIPP product at 0% fee..."></textarea>
+        <label>Regulatory Update</label>
+        <textarea id="mkt-regulatory" rows="2" placeholder="e.g. FCA Consumer Duty assessment framework updated..."></textarea>
+        <label>Market Conditions</label>
+        <textarea id="mkt-conditions" rows="2" placeholder="e.g. BoE held rates at 4.75%, equity markets up 2.3%..."></textarea>
+      </div>
+
+      <!-- 7. Legal & Compliance -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">7</div>
+          <h3>Legal &amp; Compliance</h3>
+        </div>
+        <label>Outstanding Legal Matters</label>
+        <textarea id="leg-matters" rows="2" placeholder="e.g. None material. IP assignment for 2 contractors pending."></textarea>
+        <label>FCA Updates</label>
+        <textarea id="leg-fca" rows="2" placeholder="e.g. Annual regulatory return submitted on time..."></textarea>
+        <label>Data / Privacy Issues</label>
+        <textarea id="leg-data" rows="2" placeholder="e.g. No reportable incidents this month..."></textarea>
+      </div>
+
+      <!-- 8. Investor Relations -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">8</div>
+          <h3>Investor Relations</h3>
+        </div>
+        <label>Fundraise Status</label>
+        <textarea id="ir-fundraise" rows="2" placeholder="e.g. Series A — term sheet received from Lead Capital..."></textarea>
+        <label>Investor Communications Sent</label>
+        <textarea id="ir-comms" rows="2" placeholder="e.g. Monthly investor update sent 1st May to 28 shareholders..."></textarea>
+        <label>Upcoming Investor Meetings</label>
+        <textarea id="ir-meetings" rows="2" placeholder="e.g. LP call with Acorn Ventures — 15 June..."></textarea>
+      </div>
+
+      <!-- 9. Strategic Discussion -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">9</div>
+          <h3>Strategic Discussion Items</h3>
+        </div>
+        <label>Agenda Item 1</label>
+        <textarea id="str-1" rows="2" placeholder="e.g. Expansion into pensions market — timing and resource requirements"></textarea>
+        <label>Agenda Item 2</label>
+        <textarea id="str-2" rows="2" placeholder="e.g. B2B white-label proposition — go / no go decision"></textarea>
+        <label>Agenda Item 3</label>
+        <textarea id="str-3" rows="2" placeholder="e.g. Technology roadmap prioritisation — Q3/Q4 scope"></textarea>
+      </div>
+
+      <!-- 10. Decisions Required -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <div class="section-number">10</div>
+          <h3>Decisions Required</h3>
+        </div>
+        <label>Decision 1</label>
+        <textarea id="dec-1" rows="2" placeholder="e.g. Approve £1.2M Q3 engineering budget"></textarea>
+        <label>Decision 2</label>
+        <textarea id="dec-2" rows="2" placeholder="e.g. Authorise new banking partner agreement with ClearBank"></textarea>
+        <label>Decision 3</label>
+        <textarea id="dec-3" rows="2" placeholder="e.g. Sign-off on Series A investor presentation draft"></textarea>
+      </div>
+
+      <button type="button" class="generate-btn" onclick="generatePack()">
+        Generate Board Pack →
+      </button>
+    </form>
+  </aside>
+
+  <!-- ════════════════ OUTPUT PANE ════════════════ -->
+  <main class="output-pane">
+    <div class="output-placeholder" id="placeholder">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="4" width="40" height="52" rx="4" stroke="#4f8ef7" stroke-width="1.5"/>
+        <rect x="14" y="16" width="28" height="2" rx="1" fill="#4f8ef7"/>
+        <rect x="14" y="22" width="20" height="2" rx="1" fill="#4f8ef7"/>
+        <rect x="14" y="28" width="24" height="2" rx="1" fill="#4f8ef7"/>
+        <rect x="14" y="34" width="16" height="2" rx="1" fill="#4f8ef7"/>
+        <circle cx="50" cy="50" r="10" fill="#1e3460" stroke="#4f8ef7" stroke-width="1.5"/>
+        <path d="M46 50l3 3 5-5" stroke="#4f8ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p>Fill in the form and click<br><strong>Generate Board Pack</strong> to produce your document.</p>
+    </div>
+
+    <div id="board-pack">
+      <!-- Generated dynamically -->
+    </div>
+  </main>
+
+</div>
+
+<script>
+  // ─── Build risk rows ───
+  const riskContainer = document.getElementById('risks-container');
+  for (let i = 1; i <= 5; i++) {
+    riskContainer.innerHTML += `
+      <div class="risk-block">
+        <div class="risk-label">Risk ${i}</div>
+        <label>Risk Name</label>
+        <input type="text" id="risk-${i}-name" placeholder="e.g. Key person dependency">
+        <div class="field-row" style="margin-top:0.6rem">
+          <div>
+            <label>Likelihood</label>
+            <select id="risk-${i}-likelihood">
+              <option value="">Select...</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </div>
+          <div>
+            <label>Impact</label>
+            <select id="risk-${i}-impact">
+              <option value="">Select...</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </div>
+        </div>
+        <label>Mitigation Action</label>
+        <textarea id="risk-${i}-mitigation" rows="2" placeholder="e.g. Succession plan drafted, documentation underway..."></textarea>
+      </div>`;
+  }
+
+  // ─── Helpers ───
+  function v(id) { return (document.getElementById(id)||{}).value || ''; }
+
+  function trafficLight(value, type) {
+    if (type === 'variance') {
+      const n = parseFloat(value);
+      if (isNaN(n)) return 'amber';
+      if (Math.abs(n) <= 5) return 'green';
+      if (Math.abs(n) <= 15) return 'amber';
+      return 'red';
+    }
+    if (type === 'runway') {
+      const n = parseFloat(value);
+      if (isNaN(n)) return 'amber';
+      if (n >= 18) return 'green';
+      if (n >= 9) return 'amber';
+      return 'red';
+    }
+    if (type === 'debtor') {
+      const n = parseFloat(value);
+      if (isNaN(n)) return 'amber';
+      if (n <= 30) return 'green';
+      if (n <= 60) return 'amber';
+      return 'red';
+    }
+    return 'amber';
+  }
+
+  function riskColor(likelihood, impact) {
+    const score = { Low: 1, Medium: 2, High: 3 };
+    const l = score[likelihood] || 0;
+    const imp = score[impact] || 0;
+    const total = l + imp;
+    if (total <= 2) return 'green';
+    if (total <= 4) return 'amber';
+    return 'red';
+  }
+
+  function pill(color, label) {
+    return `<span class="tl-pill ${color}"><span class="tl-dot"></span>${label}</span>`;
+  }
+
+  function parseLines(text) {
+    return text.split('\n').map(l => l.trim()).filter(Boolean);
+  }
+
+  function personTags(text) {
+    const lines = parseLines(text);
+    if (!lines.length) return '<span style="color:var(--text-muted);font-size:0.82rem">None reported</span>';
+    return lines.map(l => {
+      const parts = l.split('—');
+      const name = (parts[0]||l).trim();
+      const role = (parts[1]||'').trim();
+      return `<span class="person-tag">${name}${role ? `<span class="role">— ${role}</span>` : ''}</span>`;
+    }).join('');
+  }
+
+  function metricCard(label, value, color, showBadge) {
+    const badge = showBadge ? `<div class="metric-badge ${color}"></div>` : '';
+    return `<div class="metric-card ${color}">
+      ${badge}
+      <div class="metric-label">${label}</div>
+      <div class="metric-value">${value || '—'}</div>
+    </div>`;
+  }
+
+  function sectionHeader(num, title) {
+    return `<div class="pack-section-header">
+      <div class="pack-section-num">${num.toString().padStart(2,'0')}</div>
+      <div class="pack-section-title">${title}</div>
+    </div>`;
+  }
+
+  function blockText(label, text, fallback) {
+    const content = text || fallback || 'Not provided';
+    return `<div class="pack-label">${label}</div><div class="pack-text">${content.replace(/\n/g,'<br>')}</div>`;
+  }
+
+  // ─── Main generate ───
+  function generatePack() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    const monthStr = now.toLocaleDateString('en-GB', {month:'long',year:'numeric'});
+
+    // Collect risk data
+    const risks = [];
+    for (let i = 1; i <= 5; i++) {
+      const name = v(`risk-${i}-name`);
+      if (!name) continue;
+      risks.push({
+        name,
+        likelihood: v(`risk-${i}-likelihood`),
+        impact: v(`risk-${i}-impact`),
+        mitigation: v(`risk-${i}-mitigation`)
+      });
+    }
+
+    const variance = v('fin-variance');
+    const runway = v('fin-runway');
+    const debtor = v('fin-debtor');
+    const varColor = trafficLight(variance, 'variance');
+    const runwayColor = trafficLight(runway, 'runway');
+    const debtorColor = trafficLight(debtor, 'debtor');
+
+    const savingsPct = v('com-savings-pct');
+    const invPct = v('com-inv-pct');
+
+    const html = `
+    <div class="pack-print-bar">
+      <span>Prosper Board Pack — ${monthStr} — Confidential</span>
+      <button class="print-btn" onclick="window.print()">⎙ Print to PDF</button>
+    </div>
+
+    <!-- Cover -->
+    <div class="pack-cover">
+      <div class="pack-cover-logo">Prosper</div>
+      <div class="pack-cover-title">Board Pack — ${monthStr}</div>
+      <div class="pack-cover-meta">Generated ${dateStr} &nbsp;·&nbsp; Confidential &amp; Privileged &nbsp;·&nbsp; Not for distribution</div>
+      <div class="pack-cover-divider"></div>
+      <div class="pack-cover-toc">
+        <div class="toc-item">Executive Summary</div>
+        <div class="toc-item">Financial Performance</div>
+        <div class="toc-item">Commercial Performance</div>
+        <div class="toc-item">People</div>
+        <div class="toc-item">Risk Register</div>
+        <div class="toc-item">Market &amp; Competitive</div>
+        <div class="toc-item">Legal &amp; Compliance</div>
+        <div class="toc-item">Investor Relations</div>
+        <div class="toc-item">Strategic Discussion</div>
+        <div class="toc-item">Decisions Required</div>
+      </div>
+    </div>
+
+    <!-- 1. Executive Summary -->
+    <div class="pack-section">
+      ${sectionHeader(1,'Executive Summary')}
+      ${blockText('Key Wins This Month', v('es-wins'))}
+      ${blockText('Key Challenges', v('es-challenges'))}
+      ${blockText('Decisions Needed Today', v('es-decisions'))}
+    </div>
+
+    <!-- 2. Financial Performance -->
+    <div class="pack-section">
+      ${sectionHeader(2,'Financial Performance')}
+      <div class="metric-grid">
+        ${metricCard('P&L vs Budget', variance ? variance + '%' : '—', varColor, true)}
+        ${metricCard('AUA (This Month)', v('fin-aua-now'), 'green', false)}
+        ${metricCard('AUA (Last Month)', v('fin-aua-prev'), 'green', false)}
+        ${metricCard('Revenue Run Rate', v('fin-rev'), 'green', false)}
+        ${metricCard('Burn Rate / Month', v('fin-burn'), 'amber', false)}
+        ${metricCard('Cash Runway', runway ? runway + ' mo' : '—', runwayColor, true)}
+        ${metricCard('Debtor Days', debtor ? debtor + 'd' : '—', debtorColor, true)}
+        ${metricCard('Creditor Days', v('fin-creditor') ? v('fin-creditor') + 'd' : '—', 'green', false)}
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem">
+        <span style="font-size:0.75rem;color:var(--text-muted)">Traffic light key:</span>
+        ${pill('green','On track')} ${pill('amber','Monitor')} ${pill('red','Action required')}
+      </div>
+      <div style="margin-top:1rem">
+        <div class="kv-row">
+          <span class="kv-key">P&L vs Budget Variance</span>
+          <span class="kv-val">${variance ? variance + '%' : '—'} &nbsp;${pill(varColor, varColor === 'green' ? 'On Track' : varColor === 'amber' ? 'Watch' : 'Concern')}</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-key">Cash Runway</span>
+          <span class="kv-val">${runway ? runway + ' months' : '—'} &nbsp;${pill(runwayColor, runwayColor === 'green' ? 'Healthy' : runwayColor === 'amber' ? 'Monitor' : 'Critical')}</span>
+        </div>
+        <div class="kv-row">
+          <span class="kv-key">Debtor Days</span>
+          <span class="kv-val">${debtor ? debtor + ' days' : '—'} &nbsp;${pill(debtorColor, debtorColor === 'green' ? 'Good' : debtorColor === 'amber' ? 'Review' : 'Overdue')}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Commercial Performance -->
+    <div class="pack-section">
+      ${sectionHeader(3,'Commercial Performance')}
+      <div class="metric-grid">
+        ${metricCard('New Customers', v('com-new'), 'green', false)}
+        ${metricCard('Churned Customers', v('com-churned'), 'red', false)}
+        ${metricCard('Total Customers', v('com-total'), 'green', false)}
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Revenue Split — Savings</span>
+        <span class="kv-val">${savingsPct ? savingsPct + '%' : '—'}</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Revenue Split — Investments</span>
+        <span class="kv-val">${invPct ? invPct + '%' : '—'}</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Private Markets Status</span>
+        <span class="kv-val">${v('com-pm-status') || '—'}</span>
+      </div>
+      ${v('com-pm-notes') ? `<div class="pack-label" style="margin-top:1rem">Private Markets Notes</div><div class="pack-text">${v('com-pm-notes')}</div>` : ''}
+    </div>
+
+    <!-- 4. People -->
+    <div class="pack-section">
+      ${sectionHeader(4,'People')}
+      <div class="kv-row" style="align-items:flex-start">
+        <span class="kv-key">Total Headcount</span>
+        <span class="kv-val" style="font-size:1.1rem;font-weight:700">${v('ppl-headcount') || '—'}</span>
+      </div>
+      <div class="pack-label" style="margin-top:1rem">New Hires</div>
+      <div>${personTags(v('ppl-hires'))}</div>
+      <div class="pack-label" style="margin-top:0.9rem">Departures</div>
+      <div>${v('ppl-departures') ? personTags(v('ppl-departures')) : '<span style="color:var(--text-muted);font-size:0.82rem">None this month</span>'}</div>
+      <div class="pack-label" style="margin-top:0.9rem">Open Roles</div>
+      <div class="pack-text">${v('ppl-open') || 'None currently open'}</div>
+    </div>
+
+    <!-- 5. Risk Register -->
+    <div class="pack-section">
+      ${sectionHeader(5,'Risk Register')}
+      ${risks.length ? `
+      <table class="risk-table">
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>Likelihood</th>
+            <th>Impact</th>
+            <th>Rating</th>
+            <th>Mitigation</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${risks.map(r => {
+            const col = riskColor(r.likelihood, r.impact);
+            return `<tr>
+              <td style="font-weight:600">${r.name}</td>
+              <td>${r.likelihood ? pill(r.likelihood==='High'?'red':r.likelihood==='Medium'?'amber':'green', r.likelihood) : '—'}</td>
+              <td>${r.impact ? pill(r.impact==='High'?'red':r.impact==='Medium'?'amber':'green', r.impact) : '—'}</td>
+              <td>${pill(col, col==='green'?'Low':col==='amber'?'Medium':'High')}</td>
+              <td style="color:var(--text-secondary)">${r.mitigation || '—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>` : '<div class="pack-text" style="color:var(--text-muted)">No risks logged this period.</div>'}
+    </div>
+
+    <!-- 6. Market & Competitive -->
+    <div class="pack-section">
+      ${sectionHeader(6,'Market &amp; Competitive')}
+      ${blockText('Key Competitor Move', v('mkt-competitor'))}
+      ${blockText('Regulatory Update', v('mkt-regulatory'))}
+      ${blockText('Market Conditions', v('mkt-conditions'))}
+    </div>
+
+    <!-- 7. Legal & Compliance -->
+    <div class="pack-section">
+      ${sectionHeader(7,'Legal &amp; Compliance')}
+      ${blockText('Outstanding Legal Matters', v('leg-matters'))}
+      ${blockText('FCA Updates', v('leg-fca'))}
+      ${blockText('Data / Privacy Issues', v('leg-data'))}
+    </div>
+
+    <!-- 8. Investor Relations -->
+    <div class="pack-section">
+      ${sectionHeader(8,'Investor Relations')}
+      ${blockText('Fundraise Status', v('ir-fundraise'))}
+      ${blockText('Investor Communications Sent', v('ir-comms'))}
+      ${blockText('Upcoming Investor Meetings', v('ir-meetings'))}
+    </div>
+
+    <!-- 9. Strategic Discussion -->
+    <div class="pack-section">
+      ${sectionHeader(9,'Strategic Discussion Items')}
+      ${[v('str-1'),v('str-2'),v('str-3')].filter(Boolean).map((item,i) => `
+        <div class="agenda-item">
+          <div class="agenda-num">0${i+1}</div>
+          <div class="pack-text" style="margin:0;padding-top:2px">${item}</div>
+        </div>`).join('') || '<div class="pack-text" style="color:var(--text-muted)">No agenda items provided.</div>'}
+    </div>
+
+    <!-- 10. Decisions Required -->
+    <div class="pack-section">
+      ${sectionHeader(10,'Decisions Required — Board Approval')}
+      ${[v('dec-1'),v('dec-2'),v('dec-3')].filter(Boolean).map((d,i) => `
+        <div class="decision-item">
+          <div class="decision-prefix">Decision ${i+1}</div>
+          ${d}
+        </div>`).join('') || '<div class="pack-text" style="color:var(--text-muted)">No decisions tabled.</div>'}
+      <div style="margin-top:1.25rem;padding:0.9rem 1rem;background:rgba(212,168,83,0.06);border:1px solid rgba(212,168,83,0.2);border-radius:8px">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:0.3rem">Board Notation</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6">All decisions above require a majority board vote. Any director wishing to abstain or note a conflict of interest should do so before voting commences.</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem 0 1rem;color:var(--text-muted);font-size:0.72rem;font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:1rem">
+      PROSPER WEALTHTECH LTD &nbsp;·&nbsp; CONFIDENTIAL &amp; PRIVILEGED &nbsp;·&nbsp; FOR BOARD USE ONLY &nbsp;·&nbsp; ${dateStr}
+    </div>
+    `;
+
+    document.getElementById('placeholder').style.display = 'none';
+    const pack = document.getElementById('board-pack');
+    pack.innerHTML = html;
+    pack.style.display = 'block';
+    pack.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
