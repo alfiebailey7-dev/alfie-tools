@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Economics Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --surface: #111520;
+    --surface2: #161b27;
+    --surface3: #1c2233;
+    --border: #1f2a3d;
+    --border2: #253047;
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.12);
+    --blue-glow: rgba(59,130,246,0.25);
+    --text: #e8edf5;
+    --text-muted: #6b7a99;
+    --text-dim: #3d4d6a;
+    --red: #f43f5e;
+    --amber: #f59e0b;
+    --green: #10b981;
+    --red-dim: rgba(244,63,94,0.12);
+    --amber-dim: rgba(245,158,11,0.12);
+    --green-dim: rgba(16,185,129,0.12);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 800;
+    color: #fff; letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 18px; font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  header span {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-left: auto;
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+  section { margin-top: 48px; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Inputs ── */
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .input-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .input-group:focus-within {
+    border-color: var(--blue);
+    background: var(--surface2);
+  }
+  .input-group label {
+    display: block;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-prefix {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .input-group input[type="number"] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+    width: 100%;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    letter-spacing: -0.5px;
+  }
+  .input-group input::-webkit-outer-spin-button,
+  .input-group input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* ── Metric Cards ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 20px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--blue);
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .metric-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+  .metric-card:hover::before { opacity: 1; }
+
+  .metric-card .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .metric-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .metric-card .sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .metric-card.ratio .value { font-size: 34px; }
+  .ratio-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+  .ratio-badge.green { background: var(--green-dim); color: var(--green); }
+  .ratio-badge.amber { background: var(--amber-dim); color: var(--amber); }
+  .ratio-badge.red   { background: var(--red-dim);   color: var(--red); }
+
+  /* ── Scenario Comparison ── */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .scenario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .scenario-card.optimistic { border-color: rgba(16,185,129,0.3); }
+  .scenario-card.pessimistic { border-color: rgba(244,63,94,0.25); }
+
+  .scenario-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .scenario-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .base .scenario-dot { background: var(--blue); }
+  .optimistic .scenario-dot { background: var(--green); }
+  .pessimistic .scenario-dot { background: var(--red); }
+
+  .scenario-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .scenario-desc {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .scenario-metrics {
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .scenario-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .scenario-row:last-child { border-bottom: none; }
+  .scenario-row .s-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  .scenario-row .s-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .s-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+  }
+  .s-badge.green { background: var(--green-dim); color: var(--green); }
+  .s-badge.amber { background: var(--amber-dim); color: var(--amber); }
+  .s-badge.red   { background: var(--red-dim);   color: var(--red); }
+
+  /* ── Insights ── */
+  .insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .insight-card:hover { border-color: var(--border2); }
+  .insight-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .insight-icon.green { background: var(--green-dim); }
+  .insight-icon.amber { background: var(--amber-dim); }
+  .insight-icon.red   { background: var(--red-dim); }
+  .insight-icon.blue  { background: var(--blue-dim); }
+  .insight-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    font-weight: 400;
+  }
+  .insight-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── What-If Slider ── */
+  .whatif-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+  }
+  .whatif-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .slider-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 18px;
+  }
+  .slider-group label .slider-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .slider-group label .slider-val {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--blue);
+    letter-spacing: -1px;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 0 4px var(--blue-dim), 0 2px 8px rgba(59,130,246,0.4);
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 6px var(--blue-dim), 0 2px 12px rgba(59,130,246,0.5);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: none;
+    cursor: pointer;
+  }
+  .slider-range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .whatif-output {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+  .whatif-output .wo-title {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .wo-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .wo-metric {
+    background: var(--surface3);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+  }
+  .wo-metric .wm-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .wo-metric .wm-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .delta-pill {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+  .delta-pill.pos { background: var(--green-dim); color: var(--green); }
+  .delta-pill.neg { background: var(--red-dim); color: var(--red); }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 0; }
+
+  @media (max-width: 1100px) {
+    .inputs-grid { grid-template-columns: repeat(3, 1fr); }
+    .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+    .scenario-grid { grid-template-columns: 1fr; }
+    .whatif-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    header, .container { padding-left: 20px; padding-right: 20px; }
+    .inputs-grid { grid-template-columns: 1fr 1fr; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">UE</div>
+  <h1>Unit Economics Calculator</h1>
+  <span>v1.0 — GBP</span>
+</header>
+
+<div class="container">
+
+  <!-- INPUTS -->
+  <section>
+    <div class="section-label">01 — Inputs</div>
+    <div class="inputs-grid">
+      <div class="input-group">
+        <label>Monthly S&amp;M Spend</label>
+        <div class="input-wrap">
+          <span class="input-prefix">£</span>
+          <input type="number" id="spend" value="50000" min="0" step="1000">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>New Customers This Month</label>
+        <div class="input-wrap">
+          <input type="number" id="customers" value="100" min="1" step="1">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Avg Annual Revenue / Customer</label>
+        <div class="input-wrap">
+          <span class="input-prefix">£</span>
+          <input type="number" id="arpu" value="3600" min="0" step="100">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Annual Churn Rate</label>
+        <div class="input-wrap">
+          <input type="number" id="churn" value="20" min="0.1" max="100" step="0.5">
+          <span class="input-prefix">%</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Gross Margin</label>
+        <div class="input-wrap">
+          <input type="number" id="margin" value="70" min="0" max="100" step="1">
+          <span class="input-prefix">%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section>
+    <div class="section-label">02 — Key Metrics</div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="label">CAC</div>
+        <div class="value" id="m-cac">—</div>
+        <div class="sub">Customer Acquisition Cost</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">LTV</div>
+        <div class="value" id="m-ltv">—</div>
+        <div class="sub">Lifetime Value</div>
+      </div>
+      <div class="metric-card ratio">
+        <div class="label">LTV / CAC</div>
+        <div class="value" id="m-ratio">—</div>
+        <div id="ratio-badge" class="ratio-badge">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Payback Period</div>
+        <div class="value" id="m-payback">—</div>
+        <div class="sub">Months to recover CAC</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Avg Customer Lifespan</div>
+        <div class="value" id="m-lifespan">—</div>
+        <div class="sub">Years</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Gross Profit / Customer</div>
+        <div class="value" id="m-gp">—</div>
+        <div class="sub">Annual contribution</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENARIOS -->
+  <section>
+    <div class="section-label">03 — Scenario Comparison</div>
+    <div class="scenario-grid">
+      <!-- Base -->
+      <div class="scenario-card base">
+        <div class="scenario-header">
+          <div class="scenario-dot"></div>
+          <span class="scenario-title">Base Case</span>
+          <span class="scenario-desc">As entered</span>
+        </div>
+        <div class="scenario-metrics" id="sc-base"></div>
+      </div>
+      <!-- Optimistic -->
+      <div class="scenario-card optimistic">
+        <div class="scenario-header">
+          <div class="scenario-dot"></div>
+          <span class="scenario-title">Optimistic</span>
+          <span class="scenario-desc">−30% churn · +20% ARPU</span>
+        </div>
+        <div class="scenario-metrics" id="sc-opt"></div>
+      </div>
+      <!-- Pessimistic -->
+      <div class="scenario-card pessimistic">
+        <div class="scenario-header">
+          <div class="scenario-dot"></div>
+          <span class="scenario-title">Pessimistic</span>
+          <span class="scenario-desc">+30% churn · +20% CAC</span>
+        </div>
+        <div class="scenario-metrics" id="sc-pess"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section>
+    <div class="section-label">04 — Automated Insights</div>
+    <div class="insights-list" id="insights"></div>
+  </section>
+
+  <!-- WHAT-IF -->
+  <section>
+    <div class="section-label">05 — What-If Analysis</div>
+    <div class="whatif-container">
+      <div class="whatif-row">
+        <div>
+          <div class="slider-group">
+            <label>
+              <span class="slider-title">Churn Rate</span>
+              <span class="slider-val"><span id="wi-churn-val">20</span>%</span>
+            </label>
+            <input type="range" id="wi-churn" min="1" max="80" value="20" step="0.5">
+            <div class="slider-range-labels"><span>1%</span><span>80%</span></div>
+          </div>
+          <div style="margin-top:32px" class="slider-group">
+            <label>
+              <span class="slider-title">Annual Revenue / Customer</span>
+              <span class="slider-val">£<span id="wi-arpu-val">3600</span></span>
+            </label>
+            <input type="range" id="wi-arpu" min="500" max="50000" value="3600" step="100">
+            <div class="slider-range-labels"><span>£500</span><span>£50k</span></div>
+          </div>
+        </div>
+        <div class="whatif-output">
+          <div class="wo-title">Adjusted Metrics</div>
+          <div class="wo-metrics">
+            <div class="wo-metric">
+              <div class="wm-label">LTV</div>
+              <div class="wm-value" id="wi-ltv">—</div>
+            </div>
+            <div class="wo-metric">
+              <div class="wm-label">LTV / CAC</div>
+              <div class="wm-value" id="wi-ratio">—</div>
+            </div>
+            <div class="wo-metric">
+              <div class="wm-label">Payback Period</div>
+              <div class="wm-value" id="wi-payback">—</div>
+            </div>
+            <div class="wo-metric">
+              <div class="wm-label">Avg Lifespan</div>
+              <div class="wm-value" id="wi-lifespan">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // ── Helpers ──
+  const fmt = (n, prefix='£', dp=0) => {
+    if (!isFinite(n)) return '∞';
+    if (n >= 1e6) return prefix + (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e4) return prefix + Math.round(n).toLocaleString('en-GB');
+    return prefix + n.toLocaleString('en-GB', {minimumFractionDigits: dp, maximumFractionDigits: dp});
+  };
+  const fmtMo = n => isFinite(n) ? n.toFixed(1) + ' mo' : '∞';
+  const fmtYr = n => isFinite(n) ? n.toFixed(1) + ' yrs' : '∞';
+  const fmtX  = n => isFinite(n) ? n.toFixed(1) + 'x' : '∞';
+
+  function calcMetrics(spend, customers, arpu, churnPct, marginPct) {
+    const cac = customers > 0 ? spend / customers : 0;
+    const churn = churnPct / 100;
+    const margin = marginPct / 100;
+    const lifespan = churn > 0 ? 1 / churn : Infinity;
+    const ltv = arpu * margin * lifespan;
+    const ratio = cac > 0 ? ltv / cac : Infinity;
+    const monthlyGrossProfit = (arpu * margin) / 12;
+    const payback = monthlyGrossProfit > 0 ? cac / monthlyGrossProfit : Infinity;
+    const gp = arpu * margin;
+    return { cac, ltv, ratio, payback, lifespan, gp };
+  }
+
+  function ratioClass(r) {
+    if (r >= 5) return 'green';
+    if (r >= 3) return 'amber';
+    return 'red';
+  }
+  function ratioLabel(r) {
+    if (r >= 5) return '✓ Excellent';
+    if (r >= 3) return '⚠ Acceptable';
+    return '✕ Below Benchmark';
+  }
+
+  // ── Main update ──
+  function update() {
+    const spend = +document.getElementById('spend').value || 0;
+    const customers = +document.getElementById('customers').value || 1;
+    const arpu = +document.getElementById('arpu').value || 0;
+    const churnPct = +document.getElementById('churn').value || 1;
+    const marginPct = +document.getElementById('margin').value || 0;
+
+    const m = calcMetrics(spend, customers, arpu, churnPct, marginPct);
+
+    // Cards
+    document.getElementById('m-cac').textContent = fmt(m.cac);
+    document.getElementById('m-ltv').textContent = fmt(m.ltv);
+    document.getElementById('m-ratio').textContent = fmtX(m.ratio);
+    document.getElementById('m-payback').textContent = fmtMo(m.payback);
+    document.getElementById('m-lifespan').textContent = fmtYr(m.lifespan);
+    document.getElementById('m-gp').textContent = fmt(m.gp);
+
+    const badge = document.getElementById('ratio-badge');
+    const rc = ratioClass(m.ratio);
+    badge.className = `ratio-badge ${rc}`;
+    badge.textContent = ratioLabel(m.ratio);
+
+    // Scenarios
+    const base = m;
+    const opt = calcMetrics(spend, customers, arpu * 1.2, churnPct * 0.7, marginPct);
+    const pess = calcMetrics(spend * 1.2, customers, arpu, churnPct * 1.3, marginPct);
+
+    renderScenario('sc-base', base);
+    renderScenario('sc-opt', opt);
+    renderScenario('sc-pess', pess);
+
+    // Insights
+    renderInsights(m, churnPct, arpu, marginPct);
+
+    // What-if sync churn slider with input
+    const wiChurn = +document.getElementById('wi-churn').value;
+    const wiArpu  = +document.getElementById('wi-arpu').value;
+    updateWhatIf(spend, customers, wiArpu, wiChurn, marginPct, m.cac);
+  }
+
+  function renderScenario(id, m) {
+    const rows = [
+      { label: 'CAC', val: fmt(m.cac) },
+      { label: 'LTV', val: fmt(m.ltv) },
+      { label: 'LTV/CAC', val: fmtX(m.ratio), badge: ratioClass(m.ratio) },
+      { label: 'Payback', val: fmtMo(m.payback) },
+      { label: 'Lifespan', val: fmtYr(m.lifespan) },
+      { label: 'Gross Profit/Cust', val: fmt(m.gp) },
+    ];
+    document.getElementById(id).innerHTML = rows.map(r => `
+      <div class="scenario-row">
+        <span class="s-label">${r.label}</span>
+        <span class="s-value">
+          ${r.val}
+          ${r.badge ? `<span class="s-badge ${r.badge}">${r.badge}</span>` : ''}
+        </span>
+      </div>`).join('');
+  }
+
+  function renderInsights(m, churnPct, arpu, marginPct) {
+    const insights = [];
+
+    // LTV/CAC benchmark
+    if (m.ratio < 1) {
+      insights.push({ type: 'red', icon: '✕',
+        text: `<strong>Critical: LTV/CAC is ${fmtX(m.ratio)}</strong> — you are spending more to acquire customers than you will ever earn from them. The business is structurally unprofitable at current churn and acquisition costs.` });
+    } else if (m.ratio < 3) {
+      insights.push({ type: 'amber', icon: '⚠',
+        text: `<strong>LTV/CAC of ${fmtX(m.ratio)} is below the 3x benchmark.</strong> Most investors and operators consider 3x the minimum threshold for a sustainable SaaS or subscription business. Focus on reducing CAC or improving retention.` });
+    } else if (m.ratio >= 5) {
+      insights.push({ type: 'green', icon: '✓',
+        text: `<strong>LTV/CAC of ${fmtX(m.ratio)} is strong (above 5x).</strong> This indicates healthy unit economics. You may have headroom to invest more aggressively in acquisition without degrading returns.` });
+    } else {
+      insights.push({ type: 'blue', icon: 'ℹ',
+        text: `<strong>LTV/CAC of ${fmtX(m.ratio)} is in the acceptable 3–5x range.</strong> Solid, but there is meaningful room to improve. A 10–15% reduction in churn alone could push you above 5x.` });
+    }
+
+    // Payback period
+    if (m.payback > 24) {
+      insights.push({ type: 'red', icon: '⏱',
+        text: `<strong>Payback period of ${fmtMo(m.payback)} is very long.</strong> Recovering your acquisition cost takes over two years, which creates significant cash flow risk, especially in a downturn or if churn accelerates before payback is reached.` });
+    } else if (m.payback > 12) {
+      insights.push({ type: 'amber', icon: '⏱',
+        text: `<strong>Payback period of ${fmtMo(m.payback)} exceeds 12 months.</strong> While common in B2B SaaS, payback above a year requires confident churn forecasting and adequate working capital. Consider whether gross margin improvements could accelerate this.` });
+    } else {
+      insights.push({ type: 'green', icon: '⏱',
+        text: `<strong>Payback period of ${fmtMo(m.payback)} is healthy.</strong> Recovering CAC in under 12 months significantly reduces execution risk and improves your ability to reinvest in growth.` });
+    }
+
+    // Churn risk
+    if (churnPct >= 30) {
+      insights.push({ type: 'red', icon: '↩',
+        text: `<strong>Annual churn of ${churnPct}% is a critical risk.</strong> At this rate, the average customer only stays ${fmtYr(m.lifespan)}. Retention must become the primary operational priority — even moderate improvements have an outsized effect on LTV.` });
+    } else if (churnPct >= 15) {
+      insights.push({ type: 'amber', icon: '↩',
+        text: `<strong>Churn of ${churnPct}% is above typical SaaS benchmarks</strong> (often cited at 5–10% for B2B). Reducing churn by just 5 percentage points would increase customer lifespan by ${fmtYr(1/((churnPct-5)/100) - m.lifespan)} and materially lift LTV.` });
+    } else {
+      insights.push({ type: 'green', icon: '↩',
+        text: `<strong>Churn of ${churnPct}% is within a healthy range.</strong> Maintaining strong retention is a key driver of your current unit economics. Any deterioration here will have a compounding negative effect on LTV.` });
+    }
+
+    // Margin observation
+    if (marginPct < 50) {
+      insights.push({ type: 'amber', icon: '◈',
+        text: `<strong>Gross margin of ${marginPct}% is below the 50–70% range</strong> often targeted in software and subscription businesses. Low gross margin compresses LTV and makes it harder to achieve a healthy LTV/CAC ratio regardless of growth efficiency.` });
+    } else if (marginPct >= 80) {
+      insights.push({ type: 'blue', icon: '◈',
+        text: `<strong>Gross margin of ${marginPct}% is excellent.</strong> High gross margin gives you strong LTV leverage — small improvements in retention or ARPU translate directly into significant lifetime value gains.` });
+    }
+
+    const icons = { red: '✕', amber: '⚠', green: '✓', blue: 'ℹ' };
+    document.getElementById('insights').innerHTML = insights.slice(0,4).map(i => `
+      <div class="insight-card">
+        <div class="insight-icon ${i.type}">${i.icon}</div>
+        <div class="insight-text">${i.text}</div>
+      </div>`).join('');
+  }
+
+  function updateWhatIf(spend, customers, arpu, churnPct, marginPct, baseCac) {
+    const cac = baseCac; // CAC doesn't change with churn/arpu sliders
+    const m = calcMetrics(spend, customers, arpu, churnPct, marginPct);
+    document.getElementById('wi-ltv').textContent = fmt(m.ltv);
+    document.getElementById('wi-ratio').textContent = fmtX(m.ratio);
+    document.getElementById('wi-payback').textContent = fmtMo(m.payback);
+    document.getElementById('wi-lifespan').textContent = fmtYr(m.lifespan);
+  }
+
+  // ── Event Listeners ──
+  ['spend','customers','arpu','churn','margin'].forEach(id => {
+    document.getElementById(id).addEventListener('input', update);
+  });
+
+  const wiChurnSlider = document.getElementById('wi-churn');
+  const wiArpuSlider  = document.getElementById('wi-arpu');
+
+  wiChurnSlider.addEventListener('input', function() {
+    document.getElementById('wi-churn-val').textContent = this.value;
+    const spend = +document.getElementById('spend').value || 0;
+    const customers = +document.getElementById('customers').value || 1;
+    const wiArpu = +wiArpuSlider.value;
+    const marginPct = +document.getElementById('margin').value || 0;
+    const cac = customers > 0 ? spend / customers : 0;
+    updateWhatIf(spend, customers, wiArpu, +this.value, marginPct, cac);
+  });
+
+  wiArpuSlider.addEventListener('input', function() {
+    document.getElementById('wi-arpu-val').textContent = (+this.value).toLocaleString('en-GB');
+    const spend = +document.getElementById('spend').value || 0;
+    const customers = +document.getElementById('customers').value || 1;
+    const wiChurn = +wiChurnSlider.value;
+    const marginPct = +document.getElementById('margin').value || 0;
+    const cac = customers > 0 ? spend / customers : 0;
+    updateWhatIf(spend, customers, +this.value, wiChurn, marginPct, cac);
+  });
+
+  // Sync what-if sliders to main inputs on load
+  document.getElementById('churn').addEventListener('input', function() {
+    wiChurnSlider.value = Math.min(80, Math.max(1, +this.value));
+    document.getElementById('wi-churn-val').textContent = wiChurnSlider.value;
+  });
+  document.getElementById('arpu').addEventListener('input', function() {
+    const v = Math.min(50000, Math.max(500, +this.value));
+    wiArpuSlider.value = v;
+    document.getElementById('wi-arpu-val').textContent = v.toLocaleString('en-GB');
+  });
+
+  // ── Init ──
+  update();
+</script>
+</body>
+</html>
