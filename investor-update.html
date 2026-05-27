@@ -1,89 +1,100 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans)}
-.wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:600px}
-.panel{padding:1.5rem}
-.left{border-right:0.5px solid var(--color-border-tertiary)}
-.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-tertiary);margin:1.25rem 0 .5rem}
-.section-label:first-child{margin-top:0}
-.field{margin-bottom:.6rem}
-.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:3px}
-.field input,.field textarea{width:100%;padding:6px 10px;font-size:13px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans)}
-.field textarea{resize:vertical;min-height:52px}
+.app{background:#0a0c0f;border-radius:12px;border:1px solid #1e2228;font-family:var(--font-sans);overflow:hidden}
+.app-header{padding:16px 20px;border-bottom:1px solid #1e2228;display:flex;align-items:center;gap:10px}
+.app-header-dot{width:7px;height:7px;border-radius:50%;background:#3b82f6}
+.app-header-title{font-size:12px;font-weight:500;color:#6b7280;letter-spacing:.06em;text-transform:uppercase}
+.wrap{display:grid;grid-template-columns:1fr 1fr;min-height:580px}
+.left{padding:20px;border-right:1px solid #1e2228;overflow-y:auto}
+.right{display:flex;flex-direction:column;background:#0d1017}
+.slabel{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#4b5563;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid #1a1f27}
+.slabel:first-child{margin-top:0}
+.field{margin-bottom:8px}
+.field label{display:block;font-size:11px;color:#6b7280;margin-bottom:3px;font-weight:400}
+.field input,.field textarea{width:100%;padding:7px 10px;font-size:12.5px;border:1px solid #1e2228;border-radius:6px;background:#111318;color:#e2e8f0;font-family:var(--font-sans);outline:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus{border-color:#3b82f6}
+.field input::placeholder,.field textarea::placeholder{color:#374151}
+.field textarea{resize:vertical;min-height:50px;line-height:1.5}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn-gen{width:100%;margin-top:1rem;padding:10px;font-size:13px;font-weight:500;background:#1a56db;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer}
-.btn-gen:hover{background:#1648c0}
-.btn-gen:disabled{background:#555;cursor:default}
-.right{display:flex;flex-direction:column;gap:0}
-.output-header{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 1.5rem .75rem}
-.output-title{font-size:13px;font-weight:500;color:var(--color-text-secondary)}
-.btn-copy{padding:5px 12px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px}
-.btn-copy:hover{background:var(--color-background-secondary)}
-.output-body{flex:1;padding:0 1.5rem 1.5rem;overflow-y:auto;font-size:13px;line-height:1.75;color:var(--color-text-primary)}
-.output-body h3{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#4a9eff;margin:1.25rem 0 .4rem}
-.output-body h3:first-child{margin-top:0}
-.output-body p{margin-bottom:.5rem;color:var(--color-text-primary)}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:400px;gap:.5rem;color:var(--color-text-tertiary);text-align:center}
-.empty-state .icon{font-size:32px;opacity:.35}
-.empty-state p{font-size:13px}
-.loading{display:flex;align-items:center;justify-content:center;height:100%;min-height:400px;gap:.5rem;color:var(--color-text-secondary);font-size:13px}
-.dot{width:5px;height:5px;border-radius:50%;background:#4a9eff;animation:bounce .9s infinite}
+.btn-gen{width:100%;margin-top:14px;padding:10px 16px;font-size:12.5px;font-weight:500;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;letter-spacing:.01em;transition:background .15s}
+.btn-gen:hover{background:#2563eb}
+.btn-gen:disabled{background:#1e3a5f;color:#4b6fa8;cursor:default}
+.out-header{padding:14px 18px 12px;border-bottom:1px solid #1e2228;display:flex;justify-content:space-between;align-items:center}
+.out-label{font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#4b5563}
+.btn-copy{padding:5px 11px;font-size:11.5px;border:1px solid #1e2228;border-radius:5px;background:transparent;color:#6b7280;cursor:pointer;display:none;align-items:center;gap:4px;transition:border-color .15s,color .15s}
+.btn-copy:hover{border-color:#3b82f6;color:#3b82f6}
+.out-body{flex:1;padding:18px;font-size:13px;line-height:1.8;color:#cbd5e1;overflow-y:auto}
+.out-body h3{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#3b82f6;margin:20px 0 6px;padding-bottom:5px;border-bottom:1px solid #1a2744}
+.out-body h3:first-child{margin-top:0}
+.out-body p{margin-bottom:6px;color:#94a3b8}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:360px;gap:8px;color:#374151;text-align:center}
+.empty i{font-size:28px}
+.empty p{font-size:12px;line-height:1.6}
+.loading{display:flex;align-items:center;justify-content:center;height:100%;min-height:360px;gap:6px}
+.dot{width:5px;height:5px;border-radius:50%;background:#3b82f6;animation:b .9s infinite}
 .dot:nth-child(2){animation-delay:.15s}
 .dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
-.divider{height:0.5px;background:var(--color-border-tertiary);margin:.25rem 0}
+@keyframes b{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
 </style>
 
-<h2 class="sr-only">Investor update generator — fill in the metrics and generate a professional narrative</h2>
+<h2 class="sr-only">Investor update generator — fill in metrics and generate a professional narrative for VCs and angels</h2>
 
-<div class="wrap">
-  <div class="panel left">
-    <div class="section-label">Assets under advice</div>
-    <div class="row2">
-      <div class="field"><label>AUA this month (£)</label><input id="aua_now" type="text" placeholder="e.g. 4,200,000"></div>
-      <div class="field"><label>AUA last month (£)</label><input id="aua_prev" type="text" placeholder="e.g. 3,800,000"></div>
-    </div>
-
-    <div class="section-label">Customers</div>
-    <div class="row2">
-      <div class="field"><label>New customers</label><input id="cust_new" type="number" placeholder="e.g. 12"></div>
-      <div class="field"><label>Churned customers</label><input id="cust_churn" type="number" placeholder="e.g. 2"></div>
-    </div>
-    <div class="field"><label>Total customers</label><input id="cust_total" type="number" placeholder="e.g. 148"></div>
-
-    <div class="section-label">Financials</div>
-    <div class="row2">
-      <div class="field"><label>Revenue run rate (£/yr)</label><input id="rev" type="text" placeholder="e.g. 480,000"></div>
-      <div class="field"><label>Monthly burn rate (£)</label><input id="burn" type="text" placeholder="e.g. 65,000"></div>
-    </div>
-
-    <div class="section-label">Team</div>
-    <div class="row2">
-      <div class="field"><label>New hires this month</label><input id="hires" type="number" placeholder="e.g. 2"></div>
-      <div class="field"><label>Total headcount</label><input id="headcount" type="number" placeholder="e.g. 11"></div>
-    </div>
-
-    <div class="section-label">Narrative context</div>
-    <div class="field"><label>Key highlight this month</label><textarea id="highlight" placeholder="e.g. Signed first enterprise client, a £250k AUA account from a referral."></textarea></div>
-    <div class="field"><label>Biggest challenge this month</label><textarea id="challenge" placeholder="e.g. Longer-than-expected onboarding times are delaying revenue recognition."></textarea></div>
-    <div class="field"><label>Priority next month</label><textarea id="priority" placeholder="e.g. Launch our automated fact-find flow and hire a senior advisor."></textarea></div>
-
-    <button class="btn-gen" id="genBtn" onclick="generate()">Generate investor update</button>
+<div class="app">
+  <div class="app-header">
+    <div class="app-header-dot"></div>
+    <span class="app-header-title">Investor update generator</span>
   </div>
 
-  <div class="panel right" style="padding:0">
-    <div class="output-header">
-      <span class="output-title">Generated update</span>
-      <button class="btn-copy" id="copyBtn" onclick="copyText()" style="display:none">
-        <i class="ti ti-copy" aria-hidden="true"></i> Copy
+  <div class="wrap">
+    <div class="left">
+      <div class="slabel">Assets under advice</div>
+      <div class="row2">
+        <div class="field"><label>AUA this month (£)</label><input id="aua_now" type="text" placeholder="4,200,000"></div>
+        <div class="field"><label>AUA last month (£)</label><input id="aua_prev" type="text" placeholder="3,800,000"></div>
+      </div>
+
+      <div class="slabel">Customers</div>
+      <div class="row2">
+        <div class="field"><label>New this month</label><input id="cust_new" type="number" placeholder="12"></div>
+        <div class="field"><label>Churned</label><input id="cust_churn" type="number" placeholder="2"></div>
+      </div>
+      <div class="field"><label>Total customers</label><input id="cust_total" type="number" placeholder="148"></div>
+
+      <div class="slabel">Financials</div>
+      <div class="row2">
+        <div class="field"><label>Revenue run rate (£/yr)</label><input id="rev" type="text" placeholder="480,000"></div>
+        <div class="field"><label>Monthly burn (£)</label><input id="burn" type="text" placeholder="65,000"></div>
+      </div>
+
+      <div class="slabel">Team</div>
+      <div class="row2">
+        <div class="field"><label>New hires</label><input id="hires" type="number" placeholder="2"></div>
+        <div class="field"><label>Total headcount</label><input id="headcount" type="number" placeholder="11"></div>
+      </div>
+
+      <div class="slabel">Narrative</div>
+      <div class="field"><label>Key highlight this month</label><textarea id="highlight" placeholder="e.g. Signed first enterprise client, a £250k AUA account."></textarea></div>
+      <div class="field"><label>Biggest challenge this month</label><textarea id="challenge" placeholder="e.g. Onboarding delays are slowing revenue recognition."></textarea></div>
+      <div class="field"><label>Priority next month</label><textarea id="priority" placeholder="e.g. Launch automated fact-find and hire a senior advisor."></textarea></div>
+
+      <button class="btn-gen" id="genBtn" onclick="generate()">
+        <i class="ti ti-sparkles" aria-hidden="true" style="font-size:14px;vertical-align:-1px;margin-right:5px"></i>Generate investor update
       </button>
     </div>
-    <div class="divider" style="margin:0 1.5rem"></div>
-    <div class="output-body" id="output">
-      <div class="empty-state">
-        <i class="ti ti-file-description icon" aria-hidden="true"></i>
-        <p>Fill in the fields and hit<br>Generate investor update</p>
+
+    <div class="right">
+      <div class="out-header">
+        <span class="out-label">Generated update</span>
+        <button class="btn-copy" id="copyBtn" onclick="copyText()">
+          <i class="ti ti-copy" aria-hidden="true" style="font-size:13px"></i> Copy
+        </button>
+      </div>
+      <div class="out-body" id="output">
+        <div class="empty">
+          <i class="ti ti-file-analytics" aria-hidden="true"></i>
+          <p>Fill in your metrics and<br>generate the update</p>
+        </div>
       </div>
     </div>
   </div>
@@ -98,22 +109,14 @@ async function generate(){
   const btn=document.getElementById('genBtn');
   const out=document.getElementById('output');
   const copyBtn=document.getElementById('copyBtn');
-
-  const aua_now=numClean('aua_now');
-  const aua_prev=numClean('aua_prev');
-  const cust_new=clean('cust_new');
-  const cust_churn=clean('cust_churn');
-  const cust_total=clean('cust_total');
-  const rev=numClean('rev');
-  const burn=numClean('burn');
-  const hires=clean('hires');
-  const headcount=clean('headcount');
-  const highlight=clean('highlight');
-  const challenge=clean('challenge');
-  const priority=clean('priority');
+  const aua_now=numClean('aua_now'),aua_prev=numClean('aua_prev');
+  const cust_new=clean('cust_new'),cust_churn=clean('cust_churn'),cust_total=clean('cust_total');
+  const rev=numClean('rev'),burn=numClean('burn');
+  const hires=clean('hires'),headcount=clean('headcount');
+  const highlight=clean('highlight'),challenge=clean('challenge'),priority=clean('priority');
 
   if(!aua_now&&!cust_total&&!rev){
-    out.innerHTML='<div class="empty-state"><i class="ti ti-alert-circle icon" aria-hidden="true"></i><p>Please fill in at least a few fields first.</p></div>';
+    out.innerHTML='<div class="empty"><i class="ti ti-alert-triangle" aria-hidden="true"></i><p>Fill in at least a few fields first.</p></div>';
     return;
   }
 
@@ -136,48 +139,40 @@ TEAM AND COSTS
 FORWARD LOOK
 WHERE WE NEED YOUR HELP
 
-Here is the data for this month:
+Data:
 - AUA this month: ${aua_now?fmtGBP(aua_now):'not provided'}${auaChange}
 - AUA last month: ${aua_prev?fmtGBP(aua_prev):'not provided'}
-- New customers this month: ${cust_new||'not provided'}
+- New customers: ${cust_new||'not provided'}
 - Churned customers: ${cust_churn||'not provided'}
 - Total customers: ${cust_total||'not provided'}
 - Revenue run rate: ${rev?fmtGBP(rev)+'/yr':'not provided'}
-- Monthly burn rate: ${burn?fmtGBP(burn):'not provided'}
+- Monthly burn: ${burn?fmtGBP(burn):'not provided'}
 - New hires: ${hires||'not provided'}
 - Total headcount: ${headcount||'not provided'}
 - Key highlight: ${highlight||'not provided'}
 - Biggest challenge: ${challenge||'not provided'}
 - Priority next month: ${priority||'not provided'}
 
-Write 2–4 sentences per section. Tone: transparent, direct, and confident — suitable for VCs and angels. For any metric marked "not provided", omit it from the update naturally. Do not invent numbers.`;
+Write 2–4 sentences per section. Tone: transparent, direct, confident — suitable for VCs and angels. Omit any metric marked "not provided" naturally. Do not invent numbers.`;
 
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
     });
     const data=await res.json();
     const text=data.content.find(b=>b.type==='text')?.text||'No response received.';
-
     const sections=['HEADLINE METRICS','COMMERCIAL HIGHLIGHTS','TEAM AND COSTS','FORWARD LOOK','WHERE WE NEED YOUR HELP'];
-    let html=text;
-    sections.forEach(s=>{
-      html=html.replace(new RegExp(s+':?\\s*\\n','g'),`|||SECTION:${s}|||`);
-    });
+    let html=text,rawText='';
+    sections.forEach(s=>{html=html.replace(new RegExp(s+':?\\s*\\n','g'),`|||SECTION:${s}|||`)});
     const parts=html.split('|||');
     let rendered='';
-    let rawText='';
     parts.forEach(p=>{
       if(p.startsWith('SECTION:')){
-        const title=p.replace('SECTION:','');
-        rendered+=`<h3>${title.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}</h3>`;
-        rawText+='\n'+title+'\n';
+        const t=p.replace('SECTION:','');
+        rendered+=`<h3>${t.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase())}</h3>`;
+        rawText+='\n'+t+'\n';
       } else if(p.trim()){
         rendered+=`<p>${p.trim().replace(/\n\n/g,'</p><p>').replace(/\n/g,' ')}</p>`;
         rawText+=p.trim()+'\n';
@@ -187,7 +182,7 @@ Write 2–4 sentences per section. Tone: transparent, direct, and confident — 
     out.dataset.raw=rawText.trim();
     copyBtn.style.display='flex';
   }catch(e){
-    out.innerHTML='<div class="empty-state"><i class="ti ti-wifi-off icon" aria-hidden="true"></i><p>Something went wrong.<br>Please try again.</p></div>';
+    out.innerHTML='<div class="empty"><i class="ti ti-wifi-off" aria-hidden="true"></i><p>Something went wrong.<br>Please try again.</p></div>';
   }
   btn.disabled=false;
 }
@@ -196,8 +191,8 @@ function copyText(){
   const raw=document.getElementById('output').dataset.raw||document.getElementById('output').innerText;
   navigator.clipboard.writeText(raw).then(()=>{
     const btn=document.getElementById('copyBtn');
-    btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Copied';
-    setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" aria-hidden="true"></i> Copy';},2000);
+    btn.innerHTML='<i class="ti ti-check" aria-hidden="true" style="font-size:13px"></i> Copied';
+    setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" aria-hidden="true" style="font-size:13px"></i> Copy';},2000);
   });
 }
 </script>
