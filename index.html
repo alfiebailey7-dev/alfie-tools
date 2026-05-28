@@ -232,6 +232,8 @@
     .card:nth-child(3) { animation-delay: 0.3s; }
     .card:nth-child(4) { animation-delay: 0.4s; }
     .card:nth-child(5) { animation-delay: 0.5s; }
+    .card:nth-child(6) { animation-delay: 0.6s; }
+    .card:nth-child(7) { animation-delay: 0.7s; }
 
     /* top-edge glow line */
     .card::before {
@@ -415,7 +417,7 @@
   <section class="tools">
     <div class="tools-header">
       <p class="section-label">Workflow Tools</p>
-      <h2 class="section-title">Four tools. Zero manual work.</h2>
+      <h2 class="section-title"><span id="tool-count"></span> tools. Zero manual work.</h2>
     </div>
 
     <div class="grid">
@@ -528,6 +530,24 @@
         </a>
       </div>
 
+      <!-- Card 7 -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-icon">💰</div>
+          <span class="card-badge">Sales</span>
+        </div>
+        <div class="card-body">
+          <p class="card-name">Commission &amp; Incentive Calculator</p>
+          <p class="card-desc">Model OTE, quota attainment, accelerators and bonus thresholds for Lloyd's market placement sales teams.</p>
+        </div>
+        <a href="commission-calculator.html" class="card-btn">
+          Open Tool
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
     </div>
   </section>
 
@@ -542,5 +562,12 @@
     </div>
   </footer>
 
+  <script>
+    (function () {
+      const words = ['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+                     'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'];
+      const count = document.querySelectorAll('.grid .card').length;
+      document.getElementById('tool-count').textContent = words[count - 1] || count;
+    })();
+  </script>
 </body>
-</html>

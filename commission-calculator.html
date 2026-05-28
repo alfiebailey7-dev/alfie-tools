@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Commission & Incentive Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --border-bright: #2a2a3e;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .header-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 4px 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 48px 0;
+  }
+
+  .hero {
+    margin-bottom: 48px;
+  }
+
+  .hero h2 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .hero h2 span {
+    color: var(--accent);
+  }
+
+  .hero p {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .section-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    min-width: 28px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .section-body {
+    padding: 24px;
+  }
+
+  /* Field */
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-bright);
+    background: var(--surface2);
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--accent);
+  }
+
+  .input-prefix {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 0 12px;
+    border-right: 1px solid var(--border-bright);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .input-wrap input, .input-wrap select {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 0 14px;
+    height: 40px;
+    width: 100%;
+  }
+
+  .input-wrap select option {
+    background: var(--surface2);
+  }
+
+  /* Metric card */
+  .metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+  }
+
+  .metric-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .metric-value.green { color: var(--accent3); }
+  .metric-value.blue { color: var(--accent); }
+  .metric-value.amber { color: var(--warn); }
+  .metric-value.purple { color: #a78bfa; }
+
+  .metric-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* Tier table */
+  .tier-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .tier-table th {
+    text-align: left;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .tier-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .tier-table tr:last-child td { border-bottom: none; }
+
+  .tier-table tr.active-tier td {
+    background: rgba(0,212,255,0.04);
+    color: var(--text);
+  }
+
+  .tier-table tr.active-tier td:first-child {
+    border-left: 2px solid var(--accent);
+    color: var(--accent);
+  }
+
+  .tier-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tier-badge.current {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.3);
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: var(--border);
+    height: 4px;
+    margin-top: 12px;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  /* OTE breakdown */
+  .ote-bar {
+    display: flex;
+    height: 32px;
+    margin: 16px 0 8px;
+    overflow: hidden;
+  }
+
+  .ote-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    transition: width 0.4s ease;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ote-segment.base { background: rgba(124,58,237,0.6); color: #c4b5fd; }
+  .ote-segment.comm { background: rgba(0,212,255,0.5); color: #67e8f9; }
+  .ote-segment.bonus { background: rgba(16,185,129,0.5); color: #6ee7b7; }
+
+  .ote-legend {
+    display: flex;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+  }
+
+  /* Insights */
+  .insight {
+    background: var(--surface2);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .insight:last-child { margin-bottom: 0; }
+
+  .insight strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .insight.warn { border-left-color: var(--warn); }
+  .insight.warn strong { color: var(--warn); }
+
+  .insight.good { border-left-color: var(--accent3); }
+  .insight.good strong { color: var(--accent3); }
+
+  /* Scenario comparison */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .scenario-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .scenario-card.highlight {
+    border-color: rgba(0,212,255,0.3);
+    background: rgba(0,212,255,0.03);
+  }
+
+  .scenario-name {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .scenario-total {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .scenario-breakdown {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 20px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+
+  /* Accel indicator */
+  .accel-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.08);
+    color: var(--accent3);
+    letter-spacing: 0.08em;
+    margin-left: 12px;
+  }
+
+  .accel-flag::before {
+    content: '▲';
+    font-size: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .main { padding: 24px 20px 0; }
+    .header { padding: 20px; }
+    .grid-2, .grid-3, .scenario-grid { grid-template-columns: 1fr; }
+    .hero h2 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">InsurX</div>
+  <h1>Sales Commission & Incentive Calculator</h1>
+  <div class="header-sub">v1.0 · GBP · Lloyd's Market</div>
+</div>
+
+<div class="main">
+
+  <div class="hero">
+    <h2>Commission &<br><span>Incentive Modeller</span></h2>
+    <p>// Model OTE, tier attainment and accelerators for Lloyd's placement sales</p>
+  </div>
+
+  <!-- SECTION 01: Rep & Plan Setup -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Rep & Plan Configuration</span>
+    </div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div>
+          <div class="field">
+            <label>Base Salary</label>
+            <div class="input-wrap">
+              <span class="input-prefix">£</span>
+              <input type="number" id="base" value="60000" min="0" step="1000">
+            </div>
+          </div>
+          <div class="field">
+            <label>Annual Quota (GWP Target)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">£</span>
+              <input type="number" id="quota" value="500000" min="0" step="10000">
+            </div>
+          </div>
+          <div class="field">
+            <label>Commission Rate (% of GWP)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">%</span>
+              <input type="number" id="commRate" value="5" min="0" max="30" step="0.5">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <label>Accelerator Threshold (% of Quota)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">%</span>
+              <input type="number" id="accelThreshold" value="100" min="50" max="150" step="5">
+            </div>
+          </div>
+          <div class="field">
+            <label>Accelerated Commission Rate</label>
+            <div class="input-wrap">
+              <span class="input-prefix">%</span>
+              <input type="number" id="accelRate" value="8" min="0" max="30" step="0.5">
+            </div>
+          </div>
+          <div class="field">
+            <label>Annual Performance Bonus</label>
+            <div class="input-wrap">
+              <span class="input-prefix">£</span>
+              <input type="number" id="bonus" value="10000" min="0" step="1000">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 02: Attainment -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Current Attainment</span>
+    </div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div>
+          <div class="field">
+            <label>GWP Closed YTD</label>
+            <div class="input-wrap">
+              <span class="input-prefix">£</span>
+              <input type="number" id="gwpClosed" value="275000" min="0" step="5000">
+            </div>
+          </div>
+          <div class="field">
+            <label>GWP in Pipeline (Weighted)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">£</span>
+              <input type="number" id="gwpPipeline" value="150000" min="0" step="5000">
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <label>Month of Year</label>
+            <div class="input-wrap">
+              <div class="input-prefix" style="border-right:1px solid var(--border-bright)">#</div>
+              <select id="month">
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5" selected>May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Bonus Paid at Quota Attainment (%)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">%</span>
+              <input type="number" id="bonusThreshold" value="80" min="0" max="100" step="5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="margin-top: 8px;">
+        <div style="display:flex; align-items:center; margin-bottom:6px;">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Quota Attainment</span>
+          <span id="accelFlag" class="accel-flag" style="display:none;">ACCELERATOR ACTIVE</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="progressBar" style="width:0%"></div>
+        </div>
+        <div class="progress-label">
+          <span id="progressPct">0%</span>
+          <span id="progressRemaining">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 03: Key Metrics -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Key Metrics</span>
+    </div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="metric">
+          <div class="metric-label">Total Earnings YTD</div>
+          <div class="metric-value green" id="totalYTD">—</div>
+          <div class="metric-sub">Base + Commission + Bonus</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Commission Earned YTD</div>
+          <div class="metric-value blue" id="commYTD">—</div>
+          <div class="metric-sub">On GWP closed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Projected Full-Year OTE</div>
+          <div class="metric-value purple" id="projectedOTE">—</div>
+          <div class="metric-sub">At current run rate</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">GWP to Next Tier / Accelerator</div>
+          <div class="metric-value amber" id="gwpToTier">—</div>
+          <div class="metric-sub">Incremental GWP needed</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Pace vs Quota</div>
+          <div class="metric-value" id="paceStatus">—</div>
+          <div class="metric-sub">Expected GWP at this stage</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Effective Earnings Rate</div>
+          <div class="metric-value" id="effectiveRate">—</div>
+          <div class="metric-sub">Total comp per £ of GWP</div>
+        </div>
+      </div>
+
+      <!-- OTE bar -->
+      <div style="margin-top: 8px;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Full-Year Earnings Composition</div>
+        <div class="ote-bar">
+          <div class="ote-segment base" id="barBase">BASE</div>
+          <div class="ote-segment comm" id="barComm">COMM</div>
+          <div class="ote-segment bonus" id="barBonus">BONUS</div>
+        </div>
+        <div class="ote-legend">
+          <span><span class="legend-dot" style="background:rgba(124,58,237,0.6);display:inline-block"></span>Base</span>
+          <span><span class="legend-dot" style="background:rgba(0,212,255,0.5);display:inline-block"></span>Commission</span>
+          <span><span class="legend-dot" style="background:rgba(16,185,129,0.5);display:inline-block"></span>Bonus</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 04: Commission Tiers -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Commission Tier Structure</span>
+    </div>
+    <div class="section-body">
+      <table class="tier-table" id="tierTable">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Attainment Band</th>
+            <th>GWP Range</th>
+            <th>Commission Rate</th>
+            <th>Max Payout at Tier</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tierBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 05: Scenario Comparison -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Full-Year Scenario Comparison</span>
+    </div>
+    <div class="section-body">
+      <div class="scenario-grid" id="scenarioGrid">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 06: Insights -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Automated Insights</span>
+    </div>
+    <div class="section-body" id="insightsBody">
+    </div>
+  </div>
+
+  <div class="footer">
+    Sales Commission & Incentive Calculator · InsurX · Built by Alfie Bailey using Claude by Anthropic · Figures for modelling purposes only
+  </div>
+
+</div>
+
+<script>
+  const fmt = (n) => '£' + Math.round(n).toLocaleString('en-GB');
+  const fmtPct = (n) => n.toFixed(1) + '%';
+
+  function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+  function calculate() {
+    const base = parseFloat(document.getElementById('base').value) || 0;
+    const quota = parseFloat(document.getElementById('quota').value) || 1;
+    const commRate = parseFloat(document.getElementById('commRate').value) / 100 || 0;
+    const accelThreshold = parseFloat(document.getElementById('accelThreshold').value) / 100 || 1;
+    const accelRate = parseFloat(document.getElementById('accelRate').value) / 100 || 0;
+    const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+    const bonusThreshold = parseFloat(document.getElementById('bonusThreshold').value) / 100 || 0.8;
+    const gwpClosed = parseFloat(document.getElementById('gwpClosed').value) || 0;
+    const gwpPipeline = parseFloat(document.getElementById('gwpPipeline').value) || 0;
+    const month = parseInt(document.getElementById('month').value) || 5;
+
+    // Attainment
+    const attainmentPct = gwpClosed / quota;
+    const accelThresholdGWP = quota * accelThreshold;
+    const inAccelerator = gwpClosed >= accelThresholdGWP;
+
+    // Commission calc
+    let commYTD = 0;
+    if (gwpClosed <= accelThresholdGWP) {
+      commYTD = gwpClosed * commRate;
+    } else {
+      commYTD = (accelThresholdGWP * commRate) + ((gwpClosed - accelThresholdGWP) * accelRate);
+    }
+
+    // Bonus - pro-rata if above threshold
+    const bonusEarned = attainmentPct >= bonusThreshold ? bonus * Math.min(attainmentPct / 1, 1) : 0;
+
+    // YTD base (pro-rata)
+    const baseYTD = base * (month / 12);
+    const totalYTD = baseYTD + commYTD + bonusEarned;
+
+    // Projected full year
+    const gwpRunRate = month > 0 ? (gwpClosed / month) * 12 : 0;
+    let projComm = 0;
+    if (gwpRunRate <= accelThresholdGWP) {
+      projComm = gwpRunRate * commRate;
+    } else {
+      projComm = (accelThresholdGWP * commRate) + ((gwpRunRate - accelThresholdGWP) * accelRate);
+    }
+    const projBonus = (gwpRunRate / quota) >= bonusThreshold ? bonus : 0;
+    const projOTE = base + projComm + projBonus;
+
+    // GWP to accelerator
+    const gwpToAccel = Math.max(0, accelThresholdGWP - gwpClosed);
+
+    // Pace
+    const expectedGWP = quota * (month / 12);
+    const pacePct = gwpClosed / expectedGWP;
+    const paceGap = gwpClosed - expectedGWP;
+
+    // Effective rate
+    const effectiveRate = gwpClosed > 0 ? (totalYTD / gwpClosed) * 100 : 0;
+
+    // Progress bar
+    const progPct = Math.min(attainmentPct * 100, 100);
+    document.getElementById('progressBar').style.width = progPct + '%';
+    document.getElementById('progressPct').textContent = fmtPct(attainmentPct * 100) + ' of quota';
+    document.getElementById('progressRemaining').textContent = gwpClosed < quota
+      ? fmt(quota - gwpClosed) + ' remaining to quota'
+      : 'Quota achieved ✓';
+
+    // Accel flag
+    document.getElementById('accelFlag').style.display = inAccelerator ? 'inline-flex' : 'none';
+
+    // Metrics
+    document.getElementById('totalYTD').textContent = fmt(totalYTD);
+    document.getElementById('commYTD').textContent = fmt(commYTD);
+    document.getElementById('projectedOTE').textContent = fmt(projOTE);
+    document.getElementById('gwpToTier').textContent = inAccelerator ? 'In Accelerator' : fmt(gwpToAccel);
+    document.getElementById('gwpToTier').className = 'metric-value ' + (inAccelerator ? 'green' : 'amber');
+
+    const paceEl = document.getElementById('paceStatus');
+    if (pacePct >= 1.1) { paceEl.textContent = '▲ Ahead'; paceEl.className = 'metric-value green'; }
+    else if (pacePct >= 0.9) { paceEl.textContent = '→ On Track'; paceEl.className = 'metric-value blue'; }
+    else { paceEl.textContent = '▼ Behind'; paceEl.className = 'metric-value amber'; }
+
+    document.getElementById('effectiveRate').textContent = fmtPct(effectiveRate);
+    document.getElementById('effectiveRate').className = 'metric-value ' + (effectiveRate > 20 ? 'green' : effectiveRate > 15 ? 'blue' : 'amber');
+
+    // OTE bar
+    const totalProj = base + projComm + bonus;
+    const basePct = (base / totalProj) * 100;
+    const commPct = (projComm / totalProj) * 100;
+    const bonusPct = (bonus / totalProj) * 100;
+    document.getElementById('barBase').style.width = basePct + '%';
+    document.getElementById('barComm').style.width = commPct + '%';
+    document.getElementById('barBonus').style.width = bonusPct + '%';
+    document.getElementById('barBase').textContent = basePct > 15 ? 'BASE' : '';
+    document.getElementById('barComm').textContent = commPct > 10 ? 'COMM' : '';
+    document.getElementById('barBonus').textContent = bonusPct > 8 ? 'BONUS' : '';
+
+    // Tier table
+    const tiers = [
+      { name: 'Ramp', min: 0, max: 0.5, rate: commRate * 0.75, label: '0–50%' },
+      { name: 'Base', min: 0.5, max: 0.8, rate: commRate, label: '50–80%' },
+      { name: 'Standard', min: 0.8, max: accelThreshold, rate: commRate, label: `80–${accelThreshold*100}%` },
+      { name: 'Accelerator', min: accelThreshold, max: 1.5, rate: accelRate, label: `${accelThreshold*100}%+` },
+    ];
+
+    const tbody = document.getElementById('tierBody');
+    tbody.innerHTML = '';
+    tiers.forEach(tier => {
+      const inTier = attainmentPct >= tier.min && attainmentPct < tier.max;
+      const gwpMin = fmt(quota * tier.min);
+      const gwpMax = tier.max === 1.5 ? 'Uncapped' : fmt(quota * tier.max);
+      const maxPayout = tier.max === 1.5 ? 'Uncapped' : fmt((quota * (tier.max - tier.min)) * tier.rate);
+      const tr = document.createElement('tr');
+      if (inTier) tr.className = 'active-tier';
+      tr.innerHTML = `
+        <td>${tier.name}</td>
+        <td>${tier.label}</td>
+        <td>${gwpMin} – ${gwpMax}</td>
+        <td>${fmtPct(tier.rate * 100)}</td>
+        <td>${maxPayout}</td>
+        <td>${inTier ? '<span class="tier-badge current">◉ CURRENT</span>' : '<span style="color:var(--text-muted);font-size:10px;font-family:var(--mono)">—</span>'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Scenarios
+    const scenarios = [
+      { name: 'Conservative', gwp: quota * 0.7, label: '70% quota' },
+      { name: 'On-Quota', gwp: quota, label: '100% quota', highlight: true },
+      { name: 'Overachieve', gwp: quota * 1.3, label: '130% quota' },
+    ];
+
+    const grid = document.getElementById('scenarioGrid');
+    grid.innerHTML = '';
+    scenarios.forEach(s => {
+      let sc = 0;
+      if (s.gwp <= accelThresholdGWP) {
+        sc = s.gwp * commRate;
+      } else {
+        sc = (accelThresholdGWP * commRate) + ((s.gwp - accelThresholdGWP) * accelRate);
+      }
+      const sb = (s.gwp / quota) >= bonusThreshold ? bonus : 0;
+      const total = base + sc + sb;
+      const div = document.createElement('div');
+      div.className = 'scenario-card' + (s.highlight ? ' highlight' : '');
+      div.innerHTML = `
+        <div class="scenario-name">${s.name} · ${s.label}</div>
+        <div class="scenario-total" style="color:${s.highlight ? 'var(--accent)' : 'var(--text)'}">${fmt(total)}</div>
+        <div class="scenario-breakdown">
+          Base &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${fmt(base)}<br>
+          Commission ${fmt(sc)}<br>
+          Bonus &nbsp;&nbsp;&nbsp;&nbsp; ${fmt(sb)}<br>
+          GWP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${fmt(s.gwp)}
+        </div>
+      `;
+      grid.appendChild(div);
+    });
+
+    // Insights
+    const insights = [];
+
+    if (inAccelerator) {
+      insights.push({ type: 'good', text: `<strong>Accelerator active.</strong> Every £1 of additional GWP now earns ${fmtPct(accelRate * 100)} commission vs the base ${fmtPct(commRate * 100)}. Each £10k of GWP from here generates ${fmt(10000 * accelRate)} in commission.` });
+    } else {
+      insights.push({ type: 'default', text: `<strong>Accelerator gap: ${fmt(gwpToAccel)}.</strong> Closing ${fmt(gwpToAccel)} of additional GWP unlocks the ${fmtPct(accelRate * 100)} accelerated rate on all subsequent business.` });
+    }
+
+    if (pacePct < 0.85) {
+      const catchUpNeeded = expectedGWP - gwpClosed;
+      insights.push({ type: 'warn', text: `<strong>Pace alert.</strong> You're tracking ${fmt(Math.abs(paceGap))} behind the expected run rate for month ${month}. At current pace, full-year GWP projects to ${fmt(gwpRunRate)} vs quota of ${fmt(quota)}.` });
+    } else if (pacePct >= 1.1) {
+      insights.push({ type: 'good', text: `<strong>Ahead of pace.</strong> Tracking ${fmtPct((pacePct - 1) * 100)} above the expected run rate for month ${month}. On track to overachieve quota and activate the accelerator.` });
+    }
+
+    if (gwpPipeline > 0) {
+      const pipelineComm = Math.min(gwpPipeline, quota - gwpClosed) * commRate;
+      insights.push({ type: 'default', text: `<strong>Pipeline value: ${fmt(gwpPipeline)} weighted GWP.</strong> If fully converted, generates an estimated ${fmt(pipelineComm)} in incremental commission and takes attainment to ${fmtPct(((gwpClosed + gwpPipeline) / quota) * 100)}.` });
+    }
+
+    const bonusGap = bonusThreshold * quota - gwpClosed;
+    if (bonusGap > 0) {
+      insights.push({ type: 'warn', text: `<strong>Bonus threshold: ${fmt(Math.max(0, bonusGap))} GWP to unlock.</strong> Annual bonus of ${fmt(bonus)} activates at ${fmtPct(bonusThreshold * 100)} quota attainment (${fmt(bonusThreshold * quota)} GWP).` });
+    } else {
+      insights.push({ type: 'good', text: `<strong>Bonus unlocked.</strong> Annual performance bonus of ${fmt(bonus)} is in play. Bonus scales proportionally to quota attainment up to 100%.` });
+    }
+
+    const insightsEl = document.getElementById('insightsBody');
+    insightsEl.innerHTML = '';
+    insights.forEach(i => {
+      const div = document.createElement('div');
+      div.className = 'insight ' + (i.type !== 'default' ? i.type : '');
+      div.innerHTML = i.text;
+      insightsEl.appendChild(div);
+    });
+  }
+
+  // Event listeners
+  document.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', calculate);
+  });
+
+  // Init
+  calculate();
+</script>
+</body>
+</html>
